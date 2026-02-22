@@ -33,6 +33,14 @@ export async function POST(req: NextRequest) {
     const otp = generateOtp();
     const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
 
+    // Invalidate previous OTPs for this phone+orderId so only the latest works
+    await prisma.otp.deleteMany({
+      where: {
+        phone: normalizedPhone,
+        ...(orderId ? { orderId } : { orderId: null }),
+      },
+    });
+
     await prisma.otp.create({
       data: {
         phone: normalizedPhone,
@@ -48,7 +56,7 @@ export async function POST(req: NextRequest) {
     }
 
     return successResponse({
-      message: 'OTP sent to your phone number only. Use 123456 in development if SMS is not configured.',
+      message: 'OTP sent to your phone. In development (no SMS): check server console for OTP, or use 123456.',
       expiresIn: OTP_EXPIRY_MINUTES * 60,
     });
   } catch (error) {

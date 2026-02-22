@@ -137,8 +137,8 @@ export default function CheckoutPage() {
     }
     setOtpSending(true);
     try {
-      await axios.post('/api/payments/otp/send', { phone: phone, orderId: pendingOrderId }, { headers: { Authorization: `Bearer ${token}` } });
-      toast({ title: 'OTP sent to your phone number only.' });
+      const res = await axios.post('/api/payments/otp/send', { phone: phone, orderId: pendingOrderId }, { headers: { Authorization: `Bearer ${token}` } });
+      toast({ title: 'OTP sent to your phone.', description: res.data?.message });
       setOtpStep('otp');
       setOtpValue('');
     } catch (e: any) {
@@ -217,7 +217,7 @@ export default function CheckoutPage() {
                 placeholder="6-digit OTP"
                 maxLength={6}
               />
-              <p className="text-xs text-muted-foreground">OTP is sent to your phone only (not email). In development use: 123456</p>
+              <p className="text-xs text-muted-foreground">OTP is sent to your phone only (not email). Dev: check server console or use 123456</p>
               <Button className="w-full btn-primary gap-2" onClick={handleVerifyOtp} disabled={isLoading || otpValue.length < 4}>
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
                 Verify & Pay ৳{finalTotal.toLocaleString()}

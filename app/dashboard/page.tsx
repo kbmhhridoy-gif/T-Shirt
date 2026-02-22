@@ -6,6 +6,7 @@ import {
   FileDown, FileSpreadsheet,
 } from 'lucide-react';
 import { useAppSelector } from '@/store/hooks';
+import { useToast } from '@/components/ui/use-toast';
 import axios from 'axios';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -21,13 +22,19 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function DashboardPage() {
   const { token } = useAppSelector((s) => s.auth);
+  const { toast } = useToast();
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const downloadReport = async (format: 'pdf' | 'xlsx') => {
+    if (!token) {
+      toast({ title: 'Please log in to download', variant: 'destructive' });
+      return;
+    }
     try {
       const res = await fetch(`/api/admin/reports/orders?format=${format}`, {
         headers: { Authorization: `Bearer ${token}` },
+        credentials: 'same-origin',
       });
       if (!res.ok) throw new Error('Download failed');
       const blob = await res.blob();
@@ -37,8 +44,10 @@ export default function DashboardPage() {
       a.download = format === 'pdf' ? 'orders-report.pdf' : 'orders-report.xlsx';
       a.click();
       URL.revokeObjectURL(url);
+      toast({ title: `${format.toUpperCase()} downloaded successfully` });
     } catch (e) {
       console.error(e);
+      toast({ title: 'Download failed', variant: 'destructive' });
     }
   };
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { CheckCircle, XCircle, Package, ArrowRight } from 'lucide-react';
+import { CheckCircle, XCircle, Package, ArrowRight, FileDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAppSelector } from '@/store/hooks';
 import axios from 'axios';
@@ -87,16 +87,33 @@ export default function OrderConfirmationPage() {
         </div>
       )}
 
-      <div className="flex gap-3 justify-center">
-        <Link href="/orders">
-          <Button variant="outline" className="gap-2">
-            Track Order
+      <div className="flex flex-wrap gap-3 justify-center">
+        {order?.invoicePath && (
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={async () => {
+              const res = await fetch(`/api/orders/invoice/${order.id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              if (!res.ok) return;
+              const blob = await res.blob();
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `invoice-${order.id}.pdf`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+          >
+            <FileDown className="h-4 w-4" /> Download Invoice
           </Button>
+        )}
+        <Link href="/orders">
+          <Button variant="outline" className="gap-2">Track Order</Button>
         </Link>
         <Link href="/products">
-          <Button className="btn-primary gap-2">
-            Continue Shopping <ArrowRight className="h-4 w-4" />
-          </Button>
+          <Button className="btn-primary gap-2">Continue Shopping <ArrowRight className="h-4 w-4" /></Button>
         </Link>
       </div>
     </div>

@@ -92,6 +92,7 @@ model Order {
   paymentStatus PaymentStatus @default(PENDING)
   status        OrderStatus   @default(PENDING)
   paymentId     String?
+  invoicePath   String?
   shippingAddr  String?
   notes         String?
   createdAt     DateTime      @default(now())
@@ -134,14 +135,32 @@ model Review {
   @@map("reviews")
 }
 
+model Otp {
+  id        String   @id @default(cuid())
+  phone     String
+  otp       String
+  orderId   String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("otps")
+}
+
 model SiteSettings {
-  id              String   @id @default(cuid())
-  bannerTitle     String   @default("Premium T-Shirts")
-  bannerSubtitle  String   @default("Crafted for the Bold")
-  bannerImage     String?
-  announcementBar String?
-  featuredSection String   @default("Featured Collection")
-  updatedAt       DateTime @updatedAt
+  id                String   @id @default(cuid())
+  siteName          String   @default("Thread Haus")
+  adminEmail        String?
+  bannerTitle       String   @default("Premium T-Shirts")
+  bannerSubtitle    String   @default("Crafted for the Bold")
+  bannerImage       String?
+  announcementBar   String?
+  featuredSection   String   @default("Featured Collection")
+  bkashNumber       String?
+  nagadNumber       String?
+  paymentBkashOn    Boolean  @default(true)
+  paymentNagadOn    Boolean  @default(true)
+  paymentCardOn     Boolean  @default(true)
+  updatedAt         DateTime @updatedAt
 
   @@map("site_settings")
 }

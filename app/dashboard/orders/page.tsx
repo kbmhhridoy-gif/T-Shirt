@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Clock, Package, Truck, CheckCircle, XCircle } from 'lucide-react';
+import { Clock, Package, Truck, CheckCircle, XCircle, FileDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAppSelector } from '@/store/hooks';
 import { useToast } from '@/components/ui/use-toast';
@@ -53,6 +53,24 @@ export default function AdminOrdersPage() {
       fetchOrders();
     } catch {
       toast({ title: 'Update failed', variant: 'destructive' });
+    }
+  };
+
+  const downloadInvoice = async (orderId: string) => {
+    try {
+      const res = await fetch(`/api/orders/invoice/${orderId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `invoice-${orderId}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast({ title: 'Download failed', variant: 'destructive' });
     }
   };
 
@@ -111,7 +129,11 @@ export default function AdminOrdersPage() {
                     {order.status}
                   </div>
 
-                  {/* Status update dropdown */}
+                  {order.invoicePath && (
+                    <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => downloadInvoice(order.id)}>
+                      <FileDown className="h-3.5 w-3.5" /> Invoice
+                    </Button>
+                  )}
                   <select
                     className="text-xs bg-secondary border border-border rounded-sm px-2 py-1.5 text-foreground"
                     value={order.status}

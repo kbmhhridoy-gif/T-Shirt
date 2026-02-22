@@ -2,8 +2,9 @@
 
 import { useEffect } from 'react';
 import Image from 'next/image';
-import { Package, Clock, CheckCircle, XCircle, Truck } from 'lucide-react';
+import { Package, Clock, CheckCircle, XCircle, Truck, FileDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchMyOrders } from '@/store/slices/orderSlice';
 import { cn } from '@/lib/utils';
@@ -19,6 +20,18 @@ const STATUS_CONFIG = {
 export default function OrdersPage() {
   const dispatch = useAppDispatch();
   const { orders, isLoading } = useAppSelector((s) => s.orders);
+  const { token } = useAppSelector((s) => s.auth);
+  const downloadInvoice = async (orderId: string) => {
+    const res = await fetch(`/api/orders/invoice/${orderId}`, { headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) return;
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `invoice-${orderId}.pdf`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   useEffect(() => {
     dispatch(fetchMyOrders());
@@ -67,7 +80,7 @@ export default function OrdersPage() {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 flex-wrap">
                     <div>
                       <p className="text-xs text-muted-foreground">Total</p>
                       <p className="font-semibold">৳{order.totalAmount.toLocaleString()}</p>
@@ -76,6 +89,11 @@ export default function OrdersPage() {
                       <p className="text-xs text-muted-foreground">Payment</p>
                       <p className="text-sm">{order.paymentMethod}</p>
                     </div>
+                    {order.invoicePath && (
+                      <Button variant="outline" size="sm" className="gap-1" onClick={() => downloadInvoice(order.id)}>
+                        <FileDown className="h-3.5 w-3.5" /> Invoice
+                      </Button>
+                    )}
                     <div
                       className={cn(
                         'flex items-center gap-2 px-3 py-1.5 rounded-sm text-xs font-medium',

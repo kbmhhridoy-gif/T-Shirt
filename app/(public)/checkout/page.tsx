@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Image from 'next/image';
-import { ArrowLeft, CreditCard, Smartphone, CheckCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, CreditCard, Smartphone, CheckCircle, Loader2, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,28 +28,10 @@ type CheckoutForm = z.infer<typeof checkoutSchema>;
 
 type PaymentMethod = 'BKASH' | 'NAGAD' | 'CARD';
 
-const PAYMENT_OPTIONS = [
-  {
-    id: 'BKASH' as PaymentMethod,
-    name: 'bKash',
-    icon: '💳',
-    color: '#E2136E',
-    desc: 'Pay via bKash mobile banking',
-  },
-  {
-    id: 'NAGAD' as PaymentMethod,
-    name: 'Nagad',
-    icon: '📱',
-    color: '#F7941D',
-    desc: 'Pay via Nagad mobile banking',
-  },
-  {
-    id: 'CARD' as PaymentMethod,
-    name: 'Card',
-    icon: '💳',
-    color: '#1A1F71',
-    desc: 'Visa / MasterCard / Amex',
-  },
+const ALL_PAYMENT_OPTIONS: { id: PaymentMethod; name: string; icon: string; color: string; desc: string }[] = [
+  { id: 'BKASH', name: 'bKash', icon: '💳', color: '#E2136E', desc: 'Pay via bKash (OTP verification)' },
+  { id: 'NAGAD', name: 'Nagad', icon: '📱', color: '#F7941D', desc: 'Pay via Nagad (OTP verification)' },
+  { id: 'CARD', name: 'Card', icon: '💳', color: '#1A1F71', desc: 'Visa / MasterCard / Amex (Stripe)' },
 ];
 
 export default function CheckoutPage() {
@@ -59,10 +41,34 @@ export default function CheckoutPage() {
   const { items, total } = useAppSelector((s) => s.cart);
   const { token } = useAppSelector((s) => s.auth);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('BKASH');
+  const [paymentOptions, setPaymentOptions] = useState(ALL_PAYMENT_OPTIONS);
   const [isLoading, setIsLoading] = useState(false);
+  const [otpStep, setOtpStep] = useState<'idle' | 'mobile' | 'otp'>('idle');
+  const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [otpValue, setOtpValue] = useState('');
+  const [otpSending, setOtpSending] = useState(false);
+
+  useEffect(() => {
+    axios.get('/api/settings/public').then((res) => {
+      const d = res.data;
+      setPaymentOptions(
+        ALL_PAYMENT_OPTIONS.filter((o) => {
+          if (o.id === 'BKASH') return d.paymentBkashOn !== false;
+          if (o.id === 'NAGAD') return d.paymentNagadOn !== false;
+          if (o.id === 'CARD') return d.paymentCardOn !== false;
+          return true;
+        })
+      );
+      if (d.paymentBkashOn !== false) setPaymentMethod('BKASH');
+      else if (d.paymentNagadOn !== false) setPaymentMethod('NAGAD');
+      else if (d.paymentCardOn !== false) setPaymentMethod('CARD');
+    }).catch(() => {});
+  }, []);
 
   const shippingCost = total >= 2000 ? 0 : 80;
   const finalTotal = total + shippingCost;
+  const useOtpFlow = paymentMethod === 'BKASH' || paymentMethod === 'NAGAD';
 
   const { register, handleSubmit, formState: { errors } } = useForm<CheckoutForm>({
     resolver: zodResolver(checkoutSchema),
@@ -73,11 +79,8 @@ export default function CheckoutPage() {
       toast({ title: 'Cart is empty', variant: 'destructive' });
       return;
     }
-
     setIsLoading(true);
-
     try {
-      // Create order
       const { data: orderData } = await axios.post(
         '/api/orders',
         {
@@ -94,51 +97,116 @@ export default function CheckoutPage() {
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       const orderId = orderData.order.id;
 
-      // Initiate payment
-      if (paymentMethod === 'BKASH') {
-        const { data: bkashData } = await axios.post(
-          '/api/payments/bkash',
-          { orderId },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        dispatch(clearCart());
-        window.location.href = bkashData.bkashURL;
-      } else if (paymentMethod === 'NAGAD') {
-        // Nagad redirect
-        toast({ title: 'Redirecting to Nagad...' });
-        dispatch(clearCart());
-        router.push(`/order-confirmation/${orderId}?payment=pending`);
-      } else if (paymentMethod === 'CARD') {
-        const { data: stripeData } = await axios.post(
-          '/api/payments/stripe',
-          { orderId },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        dispatch(clearCart());
-        // In production, use Stripe Elements here
-        router.push(`/order-confirmation/${orderId}`);
+      if (useOtpFlow) {
+        setPendingOrderId(orderId);
+        setOtpStep('mobile');
+        setMobileNumber(formData.phone || '');
+        setIsLoading(false);
+        return;
       }
+
+      if (paymentMethod === 'CARD') {
+        await axios.post('/api/payments/stripe', { orderId }, { headers: { Authorization: `Bearer ${token}` } });
+        dispatch(clearCart());
+        router.push(`/order-confirmation/${orderId}`);
+        return;
+      }
+      setIsLoading(false);
     } catch (error: any) {
-      toast({
-        title: 'Checkout failed',
-        description: error.response?.data?.message || 'Please try again',
-        variant: 'destructive',
-      });
-    } finally {
+      toast({ title: 'Checkout failed', description: error.response?.data?.message || 'Please try again', variant: 'destructive' });
       setIsLoading(false);
     }
   };
 
-  if (items.length === 0) {
+  const handleSendOtp = async () => {
+    const phone = mobileNumber.replace(/\D/g, '').slice(-11);
+    if (phone.length < 11) {
+      toast({ title: 'Enter a valid 11-digit phone number', variant: 'destructive' });
+      return;
+    }
+    setOtpSending(true);
+    try {
+      await axios.post('/api/payments/otp/send', { phone: phone, orderId: pendingOrderId }, { headers: { Authorization: `Bearer ${token}` } });
+      toast({ title: 'OTP sent to your number' });
+      setOtpStep('otp');
+      setOtpValue('');
+    } catch (e: any) {
+      toast({ title: e.response?.data?.message || 'Failed to send OTP', variant: 'destructive' });
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otpValue.trim() || !pendingOrderId) return;
+    setIsLoading(true);
+    try {
+      await axios.post(
+        '/api/payments/otp/verify',
+        { phone: mobileNumber.replace(/\D/g, '').slice(-11), otp: otpValue.trim(), orderId: pendingOrderId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      dispatch(clearCart());
+      toast({ title: 'Payment successful!' });
+      router.push(`/order-confirmation/${pendingOrderId}`);
+    } catch (e: any) {
+      toast({ title: e.response?.data?.message || 'Invalid OTP', variant: 'destructive' });
+      setIsLoading(false);
+    }
+  };
+
+  if (items.length === 0 && otpStep === 'idle') {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
         <p className="text-muted-foreground mb-4">Your cart is empty</p>
-        <Link href="/products">
-          <Button className="btn-primary">Continue Shopping</Button>
-        </Link>
+        <Link href="/products"><Button className="btn-primary">Continue Shopping</Button></Link>
+      </div>
+    );
+  }
+
+  if (otpStep === 'mobile' || otpStep === 'otp') {
+    return (
+      <div className="container mx-auto px-4 py-12 max-w-md">
+        <h2 className="font-display text-2xl tracking-wider mb-6" style={{ fontFamily: 'Bebas Neue, serif' }}>
+          {paymentMethod === 'BKASH' ? 'bKash' : 'Nagad'} Payment
+        </h2>
+        <div className="border border-border rounded-sm p-6 bg-card space-y-4">
+          {otpStep === 'mobile' ? (
+            <>
+              <Label>Mobile Number</Label>
+              <Input
+                value={mobileNumber}
+                onChange={(e) => setMobileNumber(e.target.value)}
+                placeholder="01XXXXXXXXX"
+                maxLength={11}
+              />
+              <Button className="w-full btn-primary gap-2" onClick={handleSendOtp} disabled={otpSending}>
+                {otpSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Smartphone className="h-4 w-4" />}
+                Send OTP
+              </Button>
+            </>
+          ) : (
+            <>
+              <Label>Enter OTP</Label>
+              <Input
+                value={otpValue}
+                onChange={(e) => setOtpValue(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="6-digit OTP"
+                maxLength={6}
+              />
+              <p className="text-xs text-muted-foreground">In development you can use OTP: 123456</p>
+              <Button className="w-full btn-primary gap-2" onClick={handleVerifyOtp} disabled={isLoading || otpValue.length < 4}>
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+                Verify & Pay ৳{finalTotal.toLocaleString()}
+              </Button>
+              <Button type="button" variant="ghost" className="w-full" onClick={() => setOtpStep('mobile')}>
+                Change number
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     );
   }
@@ -146,22 +214,12 @@ export default function CheckoutPage() {
   return (
     <div className="container mx-auto px-4 py-12">
       <Link href="/cart" className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-8 transition-colors">
-        <ArrowLeft className="h-4 w-4" />
-        Back to Cart
+        <ArrowLeft className="h-4 w-4" /> Back to Cart
       </Link>
-
-      <h1
-        className="font-display text-5xl tracking-wider mb-10"
-        style={{ fontFamily: 'Bebas Neue, serif' }}
-      >
-        Checkout
-      </h1>
-
+      <h1 className="font-display text-5xl tracking-wider mb-10" style={{ fontFamily: 'Bebas Neue, serif' }}>Checkout</h1>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid lg:grid-cols-5 gap-10">
-          {/* Form */}
           <div className="lg:col-span-3 space-y-8">
-            {/* Delivery info */}
             <div className="border border-border rounded-sm p-6 bg-card">
               <h2 className="text-lg font-semibold mb-6">Delivery Information</h2>
               <div className="space-y-4">
@@ -192,55 +250,40 @@ export default function CheckoutPage() {
                 </div>
               </div>
             </div>
-
-            {/* Payment method */}
             <div className="border border-border rounded-sm p-6 bg-card">
               <h2 className="text-lg font-semibold mb-6">Payment Method</h2>
               <div className="space-y-3">
-                {PAYMENT_OPTIONS.map((option) => (
+                {paymentOptions.map((option) => (
                   <button
                     type="button"
                     key={option.id}
                     className={cn(
                       'w-full flex items-center gap-4 p-4 border rounded-sm text-left transition-all',
-                      paymentMethod === option.id
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border hover:border-primary/40'
+                      paymentMethod === option.id ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'
                     )}
                     onClick={() => setPaymentMethod(option.id)}
                   >
-                    <div
-                      className="w-10 h-10 rounded-sm flex items-center justify-center text-xl flex-shrink-0"
-                      style={{ backgroundColor: option.color + '20', border: `1px solid ${option.color}40` }}
-                    >
+                    <div className="w-10 h-10 rounded-sm flex items-center justify-center text-xl flex-shrink-0" style={{ backgroundColor: option.color + '20', border: `1px solid ${option.color}40` }}>
                       {option.icon}
                     </div>
                     <div className="flex-1">
                       <p className="font-medium text-sm">{option.name}</p>
                       <p className="text-xs text-muted-foreground">{option.desc}</p>
                     </div>
-                    <div
-                      className={cn(
-                        'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors',
-                        paymentMethod === option.id ? 'border-primary' : 'border-border'
-                      )}
-                    >
-                      {paymentMethod === option.id && (
-                        <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-                      )}
+                    <div className={cn('w-5 h-5 rounded-full border-2 flex items-center justify-center', paymentMethod === option.id ? 'border-primary' : 'border-border')}>
+                      {paymentMethod === option.id && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
                     </div>
                   </button>
                 ))}
               </div>
-
               {paymentMethod === 'BKASH' && (
                 <div className="mt-4 p-3 bg-[#E2136E]/10 border border-[#E2136E]/20 rounded-sm text-xs text-muted-foreground">
-                  You will be redirected to bKash to complete payment securely.
+                  Enter your bKash mobile number. We&apos;ll send an OTP to verify payment.
                 </div>
               )}
               {paymentMethod === 'NAGAD' && (
                 <div className="mt-4 p-3 bg-[#F7941D]/10 border border-[#F7941D]/20 rounded-sm text-xs text-muted-foreground">
-                  You will be redirected to Nagad to complete payment securely.
+                  Enter your Nagad mobile number. We&apos;ll send an OTP to verify payment.
                 </div>
               )}
               {paymentMethod === 'CARD' && (
@@ -250,13 +293,9 @@ export default function CheckoutPage() {
               )}
             </div>
           </div>
-
-          {/* Order summary */}
           <div className="lg:col-span-2">
             <div className="border border-border rounded-sm p-6 bg-card sticky top-24">
               <h2 className="text-lg font-semibold mb-6">Order Summary</h2>
-
-              {/* Items */}
               <div className="space-y-3 mb-6">
                 {items.map((item) => (
                   <div key={item.id} className="flex gap-3">
@@ -265,50 +304,24 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium line-clamp-1">{item.title}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {item.selectedCut} · {item.selectedSize} · ×{item.quantity}
-                      </p>
+                      <p className="text-xs text-muted-foreground">{item.selectedCut} · {item.selectedSize} · ×{item.quantity}</p>
                     </div>
-                    <p className="text-sm font-medium flex-shrink-0">
-                      ৳{(item.price * item.quantity).toLocaleString()}
-                    </p>
+                    <p className="text-sm font-medium flex-shrink-0">৳{(item.price * item.quantity).toLocaleString()}</p>
                   </div>
                 ))}
               </div>
-
               <div className="border-t border-border pt-4 space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span>৳{total.toLocaleString()}</span>
-                </div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>৳{total.toLocaleString()}</span></div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span className={shippingCost === 0 ? 'text-green-400' : ''}>
-                    {shippingCost === 0 ? 'FREE' : `৳${shippingCost}`}
-                  </span>
+                  <span className={shippingCost === 0 ? 'text-green-400' : ''}>{shippingCost === 0 ? 'FREE' : `৳${shippingCost}`}</span>
                 </div>
                 <div className="border-t border-border pt-2 flex justify-between font-semibold text-base">
-                  <span>Total</span>
-                  <span className="text-primary">৳{finalTotal.toLocaleString()}</span>
+                  <span>Total</span><span className="text-primary">৳{finalTotal.toLocaleString()}</span>
                 </div>
               </div>
-
-              <Button
-                type="submit"
-                className="w-full btn-primary mt-6 gap-2"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle className="h-4 w-4" />
-                    Place Order · ৳{finalTotal.toLocaleString()}
-                  </>
-                )}
+              <Button type="submit" className="w-full btn-primary mt-6 gap-2" disabled={isLoading}>
+                {isLoading ? <><Loader2 className="h-4 w-4 animate-spin" />Processing...</> : <><CheckCircle className="h-4 w-4" />Place Order · ৳{finalTotal.toLocaleString()}</>}
               </Button>
             </div>
           </div>

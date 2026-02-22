@@ -10,6 +10,7 @@ const publicPaths = [
   '/api/auth/login',
   '/api/auth/register',
   '/api/products',
+  '/api/settings/public',
 ];
 
 const adminOnlyPaths = ['/dashboard', '/api/admin'];

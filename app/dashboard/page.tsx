@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import {
   Users, Package, ShoppingBag, DollarSign,
-  TrendingUp, AlertCircle, Clock, CheckCircle
+  TrendingUp, AlertCircle, Clock, CheckCircle, FileDown, FileSpreadsheet
 } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar
@@ -11,6 +11,7 @@ import {
 import { useAppSelector } from '@/store/hooks';
 import axios from 'axios';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -25,6 +26,24 @@ export default function DashboardPage() {
   const { token } = useAppSelector((s) => s.auth);
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  const downloadReport = async (format: 'pdf' | 'xlsx') => {
+    try {
+      const res = await fetch(`/api/admin/reports/orders?format=${format}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Download failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = format === 'pdf' ? 'orders-report.pdf' : 'orders-report.xlsx';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   useEffect(() => {
     axios
@@ -87,14 +106,24 @@ export default function DashboardPage() {
   return (
     <div className="p-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1
-          className="font-display text-4xl tracking-wider"
-          style={{ fontFamily: 'Bebas Neue, serif' }}
-        >
-          Dashboard
-        </h1>
-        <p className="text-muted-foreground mt-1">Welcome back, Admin</p>
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1
+            className="font-display text-4xl tracking-wider"
+            style={{ fontFamily: 'Bebas Neue, serif' }}
+          >
+            Dashboard
+          </h1>
+          <p className="text-muted-foreground mt-1">Welcome back, Admin</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => downloadReport('pdf')}>
+            <FileDown className="h-4 w-4" /> Download PDF
+          </Button>
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => downloadReport('xlsx')}>
+            <FileSpreadsheet className="h-4 w-4" /> Download Excel
+          </Button>
+        </div>
       </div>
 
       {/* Stat cards */}

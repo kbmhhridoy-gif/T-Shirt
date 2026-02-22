@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Clock, Package, Truck, CheckCircle, XCircle, FileDown } from 'lucide-react';
+import { Clock, Package, Truck, CheckCircle, XCircle, FileDown, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAppSelector } from '@/store/hooks';
 import { useToast } from '@/components/ui/use-toast';
@@ -22,6 +22,7 @@ export default function AdminOrdersPage() {
   const { token } = useAppSelector((s) => s.auth);
   const { toast } = useToast();
   const [orders, setOrders] = useState<any[]>([]);
+  const [editors, setEditors] = useState<{ id: string; name: string; email: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
 
@@ -42,6 +43,18 @@ export default function AdminOrdersPage() {
     fetchOrders();
   }, [statusFilter]);
 
+  useEffect(() => {
+    const fetchEditors = async () => {
+      try {
+        const { data } = await axios.get('/api/users?role=EDITOR&limit=50', { headers: { Authorization: `Bearer ${token}` } });
+        setEditors((data.users || []).filter((u: any) => u.isActive !== false));
+      } catch {
+        // ignore
+      }
+    };
+    fetchEditors();
+  }, [token]);
+
   const updateOrderStatus = async (orderId: string, status: string) => {
     try {
       await axios.patch(
@@ -51,8 +64,18 @@ export default function AdminOrdersPage() {
       );
       toast({ title: 'Order status updated' });
       fetchOrders();
-    } catch {
-      toast({ title: 'Update failed', variant: 'destructive' });
+    } catch (err: any) {
+      toast({ title: 'Update failed', description: err.response?.data?.message, variant: 'destructive' });
+    }
+  };
+
+  const updateOrderEditor = async (orderId: string, editorId: string) => {
+    try {
+      await axios.patch(`/api/orders/${orderId}`, { editorId: editorId || null }, { headers: { Authorization: `Bearer ${token}` } });
+      toast({ title: 'Order reassigned' });
+      fetchOrders();
+    } catch (err: any) {
+      toast({ title: 'Reassign failed', description: err.response?.data?.message, variant: 'destructive' });
     }
   };
 
@@ -109,16 +132,21 @@ export default function AdminOrdersPage() {
 
           return (
             <div key={order.id} className="border border-border rounded-sm bg-card">
-              <div className="flex flex-wrap items-center justify-between gap-4 p-5 border-b border-border">
+                <div className="flex flex-wrap items-center justify-between gap-4 p-5 border-b border-border">
                 <div>
                   <p className="font-mono text-xs text-muted-foreground">
                     #{order.id.slice(-8).toUpperCase()}
                   </p>
                   <p className="font-medium mt-0.5">{order.user?.name}</p>
                   <p className="text-xs text-muted-foreground">{order.user?.email}</p>
+                  {order.editor && (
+                    <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                      <User className="h-3 w-3" /> {order.editor.name}
+                    </p>
+                  )}
                 </div>
 
-                <div className="flex items-center gap-6">
+                <div className="flex flex-wrap items-center gap-4">
                   <div className="text-right">
                     <p className="font-semibold">৳{order.totalAmount.toLocaleString()}</p>
                     <p className="text-xs text-muted-foreground">{order.paymentMethod}</p>
@@ -143,6 +171,19 @@ export default function AdminOrdersPage() {
                       <option key={s} value={s}>{s}</option>
                     ))}
                   </select>
+                  <div className="flex items-center gap-1">
+                    <User className="h-3.5 w-3.5 text-muted-foreground" />
+                    <select
+                      className="text-xs bg-secondary border border-border rounded-sm px-2 py-1.5 text-foreground min-w-[140px]"
+                      value={order.editorId || ''}
+                      onChange={(e) => updateOrderEditor(order.id, e.target.value)}
+                    >
+                      <option value="">Unassigned</option>
+                      {editors.map((e) => (
+                        <option key={e.id} value={e.id}>{e.name}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
 

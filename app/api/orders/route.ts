@@ -26,6 +26,7 @@ export async function GET(req: NextRequest) {
         take: limit,
         include: {
           user: { select: { name: true, email: true, phone: true } },
+          editor: { select: { id: true, name: true, email: true } },
           orderItems: {
             include: { product: { select: { title: true, image: true, price: true } } },
           },
@@ -80,9 +81,28 @@ export async function POST(req: NextRequest) {
     const shippingCost = subtotal >= 2000 ? 0 : 80;
     const totalAmount = subtotal + shippingCost;
 
+    // Assign editor (round-robin among active, non-muted editors)
+    let editorId: string | null = null;
+    const editors = await prisma.user.findMany({
+      where: { role: 'EDITOR', isActive: true, isMuted: false },
+      select: { id: true },
+    });
+    if (editors.length > 0) {
+      const counts = await prisma.order.groupBy({
+        by: ['editorId'],
+        where: { editorId: { not: null } },
+        _count: true,
+      });
+      const countMap = Object.fromEntries(counts.map((c) => [c.editorId, c._count]));
+      const withCounts = editors.map((e) => ({ id: e.id, count: countMap[e.id] ?? 0 }));
+      withCounts.sort((a, b) => a.count - b.count);
+      editorId = withCounts[0].id;
+    }
+
     const order = await prisma.order.create({
       data: {
         userId: user.userId,
+        editorId,
         totalAmount,
         subtotal,
         shippingCost,
@@ -91,7 +111,7 @@ export async function POST(req: NextRequest) {
         notes,
         orderItems: { create: orderItems },
       },
-      include: { orderItems: true },
+      include: { orderItems: true, editor: { select: { id: true, name: true, email: true } } },
     });
 
     return successResponse({ order }, 201);

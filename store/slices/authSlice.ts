@@ -8,6 +8,8 @@ export interface User {
   email: string;
   role: 'ADMIN' | 'EDITOR' | 'CUSTOMER';
   isBlocked: boolean;
+  isMuted?: boolean;
+  isActive?: boolean;
   avatar?: string;
 }
 

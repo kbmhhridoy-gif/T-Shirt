@@ -17,6 +17,8 @@ export async function GET(req: NextRequest) {
         email: true,
         role: true,
         isBlocked: true,
+        isActive: true,
+        isMuted: true,
         avatar: true,
         phone: true,
         address: true,
@@ -25,7 +27,8 @@ export async function GET(req: NextRequest) {
     });
 
     if (!user) return unauthorizedResponse('User not found');
-    if (user.isBlocked) return forbiddenResponse('Account suspended');
+    if (user.isBlocked) return forbiddenResponse('Your account has been blocked by admin.');
+    if (user.role === 'EDITOR' && user.isActive === false) return forbiddenResponse('Your account has been disabled by admin.');
 
     return successResponse({ user });
   } catch (error) {

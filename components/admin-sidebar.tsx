@@ -32,6 +32,7 @@ const adminNav = [
 
 const editorNav = [
   { label: 'Products', href: '/editor/products', icon: Package },
+  { label: 'Orders', href: '/editor/orders', icon: ShoppingBag },
 ];
 
 interface AdminSidebarProps {

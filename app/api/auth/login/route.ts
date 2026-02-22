@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
+      select: { id: true, name: true, email: true, password: true, role: true, isBlocked: true, isActive: true },
     });
 
     if (!user) {
@@ -29,7 +30,10 @@ export async function POST(req: NextRequest) {
     }
 
     if (user.isBlocked) {
-      return forbiddenResponse('Your account has been suspended. Please contact support.');
+      return forbiddenResponse('Your account has been blocked by admin.');
+    }
+    if (user.role === 'EDITOR' && user.isActive === false) {
+      return forbiddenResponse('Your account has been disabled by admin.');
     }
 
     const token = await signToken({

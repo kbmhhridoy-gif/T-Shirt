@@ -93,8 +93,12 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       return forbiddenResponse('Access denied');
     }
 
+    // Soft delete: set isActive=false to keep order history safe
     await logEditorActivity(user.userId, 'DELETE', params.id);
-    await prisma.product.delete({ where: { id: params.id } });
+    await prisma.product.update({
+      where: { id: params.id },
+      data: { isActive: false },
+    });
 
     return successResponse({ message: 'Product deleted successfully' });
   } catch (error) {

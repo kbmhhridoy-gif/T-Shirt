@@ -38,6 +38,8 @@ export async function GET(req: NextRequest) {
           phone: true,
           role: true,
           isBlocked: true,
+          isMuted: true,
+          isActive: true,
           avatar: true,
           createdAt: true,
           _count: { select: { orders: true } },

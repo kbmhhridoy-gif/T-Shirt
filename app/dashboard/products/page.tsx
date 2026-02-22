@@ -126,8 +126,9 @@ export default function AdminProductsPage() {
       });
       toast({ title: 'Product deleted' });
       fetchProducts();
-    } catch {
-      toast({ title: 'Delete failed', variant: 'destructive' });
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Delete failed';
+      toast({ title: 'Cannot delete', description: msg, variant: 'destructive' });
     }
   };
 

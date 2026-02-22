@@ -48,9 +48,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  orders   Order[]
-  reviews  Review[]
-  products Product[] @relation("CreatedBy")
+  orders          Order[]
+  reviews         Review[]
+  products        Product[]       @relation("CreatedBy")
+  editorActivities EditorActivity[]
 
   @@map("users")
 }
@@ -75,9 +76,10 @@ model Product {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  createdBy  User        @relation("CreatedBy", fields: [createdById], references: [id])
-  orderItems OrderItem[]
-  reviews    Review[]
+  createdBy       User             @relation("CreatedBy", fields: [createdById], references: [id])
+  orderItems      OrderItem[]
+  reviews         Review[]
+  editorActivities EditorActivity[]
 
   @@map("products")
 }
@@ -135,6 +137,7 @@ model Review {
   @@map("reviews")
 }
 
+// OTP is sent to phone number only (SMS). Never sent via email.
 model Otp {
   id        String   @id @default(cuid())
   phone     String
@@ -144,6 +147,22 @@ model Otp {
   createdAt DateTime @default(now())
 
   @@map("otps")
+}
+
+// Tracks editor contributions (product create/update/delete) for admin analytics
+model EditorActivity {
+  id        String   @id @default(cuid())
+  editorId  String
+  action    String   // CREATE | UPDATE | DELETE
+  productId String?
+  createdAt DateTime @default(now())
+
+  editor  User     @relation(fields: [editorId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([editorId])
+  @@index([createdAt])
+  @@map("editor_activities")
 }
 
 model SiteSettings {

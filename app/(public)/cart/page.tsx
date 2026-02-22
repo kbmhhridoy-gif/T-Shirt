@@ -10,7 +10,7 @@ import { removeFromCart, updateQuantity, clearCart } from '@/store/slices/cartSl
 export default function CartPage() {
   const dispatch = useAppDispatch();
   const { items, total, itemCount } = useAppSelector((s) => s.cart);
-  const { isAuthenticated } = useAppSelector((s) => s.auth);
+  const { isAuthenticated, user } = useAppSelector((s) => s.auth);
 
   const shippingCost = total >= 2000 ? 0 : 80;
   const finalTotal = total + shippingCost;
@@ -142,7 +142,13 @@ export default function CartPage() {
               </div>
             </div>
 
-            {isAuthenticated ? (
+            {user?.role === 'EDITOR' ? (
+              <div className="mt-6 p-3 rounded-sm bg-muted/50 border border-border">
+                <p className="text-sm text-muted-foreground text-center">
+                  Checkout is only available for customers. Editors cannot place orders.
+                </p>
+              </div>
+            ) : isAuthenticated ? (
               <Link href="/checkout" className="block mt-6">
                 <Button className="w-full btn-primary gap-2">
                   Proceed to Checkout <ArrowRight className="h-4 w-4" />

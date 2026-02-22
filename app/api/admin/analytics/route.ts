@@ -35,7 +35,10 @@ export async function GET(req: NextRequest) {
       prisma.order.findMany({
         take: 5,
         orderBy: { createdAt: 'desc' },
-        include: { user: { select: { name: true, email: true } } },
+        include: {
+          user: { select: { name: true, email: true, phone: true } },
+          orderItems: { include: { product: { select: { title: true } } } },
+        },
       }),
       prisma.user.count({ where: { isBlocked: true } }),
       prisma.order.count({ where: { status: 'PENDING' } }),
@@ -62,19 +65,26 @@ export async function GET(req: NextRequest) {
       ORDER BY date ASC
     ` as any[];
 
+    // Normalize raw query result: PostgreSQL returns COUNT/SUM as BigInt, which JSON.stringify cannot serialize
+    const salesDataSerializable = salesData.map((row: any) => ({
+      date: row.date instanceof Date ? row.date.toISOString().slice(0, 10) : String(row.date),
+      orders: Number(row.orders ?? 0),
+      revenue: Number(row.revenue ?? 0),
+    }));
+
     return successResponse({
       stats: {
         totalUsers,
         totalProducts,
         totalOrders,
-        totalRevenue: totalRevenue._sum.totalAmount || 0,
+        totalRevenue: totalRevenue._sum.totalAmount ?? 0,
         blockedUsers,
         pendingOrders,
-        monthlyRevenue: monthlyRevenue._sum.totalAmount || 0,
+        monthlyRevenue: monthlyRevenue._sum.totalAmount ?? 0,
         weeklyOrders,
       },
       recentOrders,
-      salesData,
+      salesData: salesDataSerializable,
     });
   } catch (error) {
     console.error('Analytics error:', error);

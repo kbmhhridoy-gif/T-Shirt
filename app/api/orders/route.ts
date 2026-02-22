@@ -25,9 +25,9 @@ export async function GET(req: NextRequest) {
         skip,
         take: limit,
         include: {
-          user: { select: { name: true, email: true } },
+          user: { select: { name: true, email: true, phone: true } },
           orderItems: {
-            include: { product: { select: { title: true, image: true } } },
+            include: { product: { select: { title: true, image: true, price: true } } },
           },
         },
         orderBy: { createdAt: 'desc' },
@@ -45,6 +45,9 @@ export async function POST(req: NextRequest) {
   try {
     const user = await getUserFromRequest(req);
     if (!user) return unauthorizedResponse();
+    if (user.role === 'EDITOR') {
+      return forbiddenResponse('Editors cannot place orders. Checkout is only available for customers and admins.');
+    }
 
     const { items, paymentMethod, shippingAddr, notes } = await req.json();
 

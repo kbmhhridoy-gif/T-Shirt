@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromRequest } from '@/lib/auth';
 import { successResponse, errorResponse, unauthorizedResponse, forbiddenResponse } from '@/lib/api';
+import { logEditorActivity } from '@/lib/editor-activity';
 
 export async function GET(req: NextRequest) {
   try {
@@ -113,6 +114,8 @@ export async function POST(req: NextRequest) {
         createdById: user.userId,
       },
     });
+
+    await logEditorActivity(user.userId, 'CREATE', product.id);
 
     return successResponse({ product }, 201);
   } catch (error) {

@@ -42,13 +42,13 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Simulated: in production send via SMS gateway. For dev, log or use a test endpoint.
+    // OTP is sent to phone only (SMS gateway in production). Never sent via email.
     if (process.env.NODE_ENV === 'development') {
-      console.log(`[OTP] Phone ${normalizedPhone} -> OTP: ${otp} (expires ${expiresAt.toISOString()})`);
+      console.log(`[OTP] Sent to phone ${normalizedPhone} -> OTP: ${otp} (expires ${expiresAt.toISOString()})`);
     }
 
     return successResponse({
-      message: 'OTP sent. Use 123456 in development if SMS is not configured.',
+      message: 'OTP sent to your phone number only. Use 123456 in development if SMS is not configured.',
       expiresIn: OTP_EXPIRY_MINUTES * 60,
     });
   } catch (error) {

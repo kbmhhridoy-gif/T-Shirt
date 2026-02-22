@@ -3,11 +3,8 @@
 import { useEffect, useState } from 'react';
 import {
   Users, Package, ShoppingBag, DollarSign,
-  TrendingUp, AlertCircle, Clock, CheckCircle, FileDown, FileSpreadsheet
+  FileDown, FileSpreadsheet,
 } from 'lucide-react';
-import {
-  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar
-} from 'recharts';
 import { useAppSelector } from '@/store/hooks';
 import axios from 'axios';
 import { Badge } from '@/components/ui/badge';
@@ -144,43 +141,6 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground mt-2">{card.sub}</p>
           </div>
         ))}
-      </div>
-
-      {/* Charts */}
-      <div className="grid lg:grid-cols-2 gap-6 mb-8">
-        <div className="border border-border rounded-sm p-6 bg-card">
-          <h3 className="font-medium mb-6">Revenue (Last 7 Days)</h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={salesData || []}>
-              <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip
-                contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '4px' }}
-              />
-              <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[2, 2, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="border border-border rounded-sm p-6 bg-card">
-          <h3 className="font-medium mb-6">Orders (Last 7 Days)</h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={salesData || []}>
-              <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip
-                contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '4px' }}
-              />
-              <Line
-                type="monotone"
-                dataKey="orders"
-                stroke="hsl(var(--primary))"
-                strokeWidth={2}
-                dot={{ fill: 'hsl(var(--primary))', r: 3 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
       </div>
 
       {/* Recent Orders */}

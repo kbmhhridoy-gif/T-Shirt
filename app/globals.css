@@ -6,6 +6,44 @@
 
 @layer base {
   :root {
+    /* Light theme (default when theme = light) */
+    --background: 0 0% 100%;
+    --foreground: 20 14% 10%;
+
+    --card: 0 0% 98%;
+    --card-foreground: 20 14% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 14% 10%;
+
+    --primary: 25 95% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 20 10% 94%;
+    --secondary-foreground: 20 14% 10%;
+
+    --muted: 20 8% 92%;
+    --muted-foreground: 20 5% 40%;
+
+    --accent: 25 95% 53%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 20 8% 88%;
+    --input: 20 8% 88%;
+    --ring: 25 95% 53%;
+
+    --radius: 0.25rem;
+
+    --font-display: 'Bebas Neue', serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  .dark {
+    /* Dark theme */
     --background: 20 14% 4%;
     --foreground: 30 10% 95%;
 
@@ -33,12 +71,6 @@
     --border: 20 8% 18%;
     --input: 20 8% 18%;
     --ring: 25 95% 53%;
-
-    --radius: 0.25rem;
-
-    --font-display: 'Bebas Neue', serif;
-    --font-body: 'DM Sans', sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
   }
 }
 

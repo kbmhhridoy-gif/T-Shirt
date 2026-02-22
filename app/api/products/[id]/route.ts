@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromRequest } from '@/lib/auth';
 import { successResponse, errorResponse, unauthorizedResponse, forbiddenResponse } from '@/lib/api';
+import { logEditorActivity } from '@/lib/editor-activity';
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -76,6 +77,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       },
     });
 
+    await logEditorActivity(user.userId, 'UPDATE', params.id);
+
     return successResponse({ product });
   } catch (error) {
     return errorResponse('Failed to update product', 500);
@@ -90,6 +93,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       return forbiddenResponse('Access denied');
     }
 
+    await logEditorActivity(user.userId, 'DELETE', params.id);
     await prisma.product.delete({ where: { id: params.id } });
 
     return successResponse({ message: 'Product deleted successfully' });

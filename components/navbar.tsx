@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ShoppingCart, Menu, X, User, LogOut, LayoutDashboard, Package } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { logout } from '@/store/slices/authSlice';
 import { Button } from '@/components/ui/button';
@@ -73,7 +74,8 @@ export function Navbar() {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
             {/* Cart */}
             <Link href="/cart" className="relative p-2 hover:text-primary transition-colors">
               <ShoppingCart className="h-5 w-5" />

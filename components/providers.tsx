@@ -5,6 +5,7 @@ import { store } from '@/store';
 import { useEffect } from 'react';
 import { useAppDispatch } from '@/store/hooks';
 import { getMe } from '@/store/slices/authSlice';
+import { ThemeProvider as NextThemesProvider } from 'next-themes';
 
 function AuthInitializer({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
@@ -22,7 +23,9 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <Provider store={store}>
-      <AuthInitializer>{children}</AuthInitializer>
+      <NextThemesProvider attribute="class" defaultTheme="dark" storageKey="threadhaus-theme" enableSystem={false}>
+        <AuthInitializer>{children}</AuthInitializer>
+      </NextThemesProvider>
     </Provider>
   );
 }

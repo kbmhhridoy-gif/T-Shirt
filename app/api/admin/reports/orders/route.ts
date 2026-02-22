@@ -14,24 +14,36 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const format = searchParams.get('format'); // 'pdf' | 'xlsx'
 
+    // Single optimized query: orders with user, order items, and product details
     const orders = await prisma.order.findMany({
       include: {
-        user: { select: { name: true, email: true } },
-        orderItems: { include: { product: { select: { title: true } } } },
+        user: { select: { name: true, email: true, phone: true } },
+        orderItems: {
+          include: { product: { select: { title: true, price: true } } },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
 
     const rows = orders.map((o) => {
-      const phone = (o.shippingAddr || '').split(',')[1]?.trim() || '—';
+      const phone = o.user.phone || (o.shippingAddr || '').split(',')[1]?.trim() || '—';
       return {
         orderId: o.id,
         customerName: o.user.name,
+        email: o.user.email,
         phone,
         paymentMethod: o.paymentMethod,
         amount: o.totalAmount,
         status: o.status,
         date: new Date(o.createdAt).toLocaleDateString('en-BD'),
+        subtotal: o.subtotal,
+        shippingCost: o.shippingCost,
+        orderItems: o.orderItems.map((oi) => ({
+          title: oi.product?.title,
+          quantity: oi.quantity,
+          price: oi.price,
+          total: oi.price * oi.quantity,
+        })),
       };
     });
 
@@ -41,6 +53,7 @@ export async function GET(req: NextRequest) {
       sheet.columns = [
         { header: 'Order ID', key: 'orderId', width: 28 },
         { header: 'Customer Name', key: 'customerName', width: 20 },
+        { header: 'Email', key: 'email', width: 24 },
         { header: 'Phone', key: 'phone', width: 14 },
         { header: 'Payment Method', key: 'paymentMethod', width: 12 },
         { header: 'Amount', key: 'amount', width: 12 },
@@ -62,28 +75,29 @@ export async function GET(req: NextRequest) {
       const chunks: Buffer[] = [];
       doc.on('data', (chunk: Buffer) => chunks.push(chunk));
       doc.fontSize(18).text('Orders Report', { align: 'center' });
-      doc.moveDown(1);
-      doc.fontSize(10);
-      doc.text(`Generated: ${new Date().toLocaleString('en-BD')}`);
-      doc.moveDown(1);
-      doc.text('Order ID', 50, doc.y, { continued: true });
-      doc.text('Customer', 200, doc.y, { continued: true });
-      doc.text('Phone', 320, doc.y, { continued: true });
-      doc.text('Payment', 400, doc.y, { continued: true });
-      doc.text('Amount', 460, doc.y, { continued: true });
-      doc.text('Status', 520, doc.y, { continued: true });
-      doc.text('Date', 580, doc.y);
       doc.moveDown(0.5);
-      const startY = doc.y;
-      rows.slice(0, 40).forEach((r, i) => {
-        doc.fontSize(9).text(r.orderId.slice(-8), 50, startY + i * 18, { continued: true });
-        doc.text((r.customerName || '').slice(0, 15), 200, startY + i * 18, { continued: true });
-        doc.text(r.phone, 320, startY + i * 18, { continued: true });
-        doc.text(r.paymentMethod, 400, startY + i * 18, { continued: true });
-        doc.text(`৳${r.amount}`, 460, startY + i * 18, { continued: true });
-        doc.text(r.status, 520, startY + i * 18, { continued: true });
-        doc.text(r.date, 580, startY + i * 18);
-      });
+      doc.fontSize(10).fillColor('#666').text(`Generated: ${new Date().toLocaleString('en-BD')}`, { align: 'center' });
+      doc.moveDown(1.5);
+      doc.fillColor('#000');
+      for (let i = 0; i < Math.min(rows.length, 50); i++) {
+        const r = rows[i];
+        if (i > 0) doc.moveDown(1);
+        doc.fontSize(11).text(`Order #${r.orderId.slice(-8).toUpperCase()}`, { underline: true });
+        doc.fontSize(9);
+        doc.text(`Customer: ${r.customerName || '—'}`);
+        doc.text(`Email: ${r.email || '—'}`);
+        doc.text(`Phone: ${r.phone || '—'}`);
+        doc.text(`Payment: ${r.paymentMethod} | Status: ${r.status} | Date: ${r.date}`);
+        doc.text('Items:');
+        (r.orderItems || []).forEach((item: { title: string; quantity: number; price: number; total: number }) => {
+          doc.text(`  • ${item.title} × ${item.quantity} @ ৳${item.price?.toLocaleString()} = ৳${item.total?.toLocaleString()}`);
+        });
+        doc.text(`Subtotal: ৳${(r.subtotal ?? 0).toLocaleString()} | Shipping: ৳${(r.shippingCost ?? 0).toLocaleString()} | Total: ৳${(r.amount ?? 0).toLocaleString()}`);
+        if (doc.y > 700) {
+          doc.addPage();
+          doc.y = 50;
+        }
+      }
       const pdfBuffer = await new Promise<Buffer>((resolve, reject) => {
         doc.on('end', () => resolve(Buffer.concat(chunks)));
         doc.on('error', reject);

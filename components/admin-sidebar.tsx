@@ -10,8 +10,10 @@ import {
   Settings,
   LogOut,
   BarChart3,
+  TrendingUp,
   Image as ImageIcon,
 } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logout } from '@/store/slices/authSlice';
 import { useRouter } from 'next/navigation';
@@ -20,6 +22,7 @@ import { cn } from '@/lib/utils';
 const adminNav = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
+  { label: 'Insights', href: '/dashboard/insights', icon: TrendingUp },
   { label: 'Products', href: '/dashboard/products', icon: Package },
   { label: 'Orders', href: '/dashboard/orders', icon: ShoppingBag },
   { label: 'Customers', href: '/dashboard/customers', icon: Users },
@@ -97,7 +100,11 @@ export function AdminSidebar({ role = 'ADMIN' }: AdminSidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="p-3 border-t border-border">
+      <div className="p-3 border-t border-border space-y-1">
+        <div className="flex items-center justify-between px-4 py-2">
+          <span className="text-xs text-muted-foreground uppercase tracking-widest">Theme</span>
+          <ThemeToggle />
+        </div>
         <Link href="/">
           <div className="admin-sidebar-item text-xs">
             ← Back to Store

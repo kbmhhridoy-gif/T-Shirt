@@ -111,7 +111,7 @@ export default function CustomersPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-secondary/30">
-              {['User', 'Role', 'Orders', 'Status', 'Joined', 'Actions'].map((h) => (
+              {['User', 'Phone', 'Role', 'Orders', 'Total spent', 'Products', 'Status', 'Joined', 'Actions'].map((h) => (
                 <th key={h} className="text-left text-xs text-muted-foreground uppercase tracking-wider px-6 py-4">
                   {h}
                 </th>
@@ -138,6 +138,9 @@ export default function CustomersPage() {
                     </div>
                   </div>
                 </td>
+                <td className="px-6 py-4 text-muted-foreground text-sm font-mono">
+                  {user.phone || '—'}
+                </td>
                 <td className="px-6 py-4">
                   <Badge
                     variant={user.role === 'ADMIN' ? 'default' : 'secondary'}
@@ -153,6 +156,12 @@ export default function CustomersPage() {
                 </td>
                 <td className="px-6 py-4 text-muted-foreground">
                   {user._count?.orders || 0}
+                </td>
+                <td className="px-6 py-4 font-medium">
+                  ৳{(user.totalSpent ?? 0).toLocaleString()}
+                </td>
+                <td className="px-6 py-4 text-muted-foreground">
+                  {user.productsPurchased ?? 0}
                 </td>
                 <td className="px-6 py-4">
                   {user.isBlocked ? (

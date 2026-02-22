@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    const [users, total] = await Promise.all([
+    const [users, total, paidTotals, productsPerUser] = await Promise.all([
       prisma.user.findMany({
         where,
         skip,
@@ -35,6 +35,7 @@ export async function GET(req: NextRequest) {
           id: true,
           name: true,
           email: true,
+          phone: true,
           role: true,
           isBlocked: true,
           avatar: true,
@@ -44,9 +45,37 @@ export async function GET(req: NextRequest) {
         orderBy: { createdAt: 'desc' },
       }),
       prisma.user.count({ where }),
+      prisma.order.groupBy({
+        by: ['userId'],
+        where: { paymentStatus: 'PAID' },
+        _sum: { totalAmount: true },
+      }),
+      prisma.$queryRaw<{ userId: string; count: bigint }[]>`
+        SELECT o."userId", COUNT(DISTINCT oi."productId") as count
+        FROM order_items oi
+        INNER JOIN orders o ON oi."orderId" = o.id
+        WHERE o."paymentStatus" = 'PAID'
+        GROUP BY o."userId"
+      `,
     ]);
 
-    return successResponse({ users, pagination: { total, page, limit } });
+    const totalSpentByUser = Object.fromEntries(
+      paidTotals.map((r) => [r.userId, r._sum.totalAmount ?? 0])
+    );
+    const productsPurchasedByUser = Object.fromEntries(
+      productsPerUser.map((r) => [r.userId, Number(r.count)])
+    );
+
+    const usersWithContribution = users.map((u) => ({
+      ...u,
+      totalSpent: totalSpentByUser[u.id] ?? 0,
+      productsPurchased: productsPurchasedByUser[u.id] ?? 0,
+    }));
+
+    return successResponse({
+      users: usersWithContribution,
+      pagination: { total, page, limit },
+    });
   } catch (error) {
     return errorResponse('Failed to fetch users', 500);
   }

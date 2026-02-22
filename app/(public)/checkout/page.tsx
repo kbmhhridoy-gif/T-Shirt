@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { clearCart } from '@/store/slices/cartSlice';
+import { getMe } from '@/store/slices/authSlice';
 import { useToast } from '@/components/ui/use-toast';
 import axios from 'axios';
 import { cn } from '@/lib/utils';
@@ -39,7 +40,8 @@ export default function CheckoutPage() {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
   const { items, total } = useAppSelector((s) => s.cart);
-  const { token } = useAppSelector((s) => s.auth);
+  const { token, user } = useAppSelector((s) => s.auth);
+  const isEditor = user?.role === 'EDITOR';
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('BKASH');
   const [paymentOptions, setPaymentOptions] = useState(ALL_PAYMENT_OPTIONS);
   const [isLoading, setIsLoading] = useState(false);
@@ -49,6 +51,9 @@ export default function CheckoutPage() {
   const [otpValue, setOtpValue] = useState('');
   const [otpSending, setOtpSending] = useState(false);
 
+  useEffect(() => {
+    if (token && !user) dispatch(getMe());
+  }, [token, user, dispatch]);
   useEffect(() => {
     axios.get('/api/settings/public').then((res) => {
       const d = res.data;
@@ -75,6 +80,10 @@ export default function CheckoutPage() {
   });
 
   const onSubmit = async (formData: CheckoutForm) => {
+    if (isEditor) {
+      toast({ title: 'Editors cannot place orders. Checkout is only for customers.', variant: 'destructive' });
+      return;
+    }
     if (!items.length) {
       toast({ title: 'Cart is empty', variant: 'destructive' });
       return;
@@ -129,7 +138,7 @@ export default function CheckoutPage() {
     setOtpSending(true);
     try {
       await axios.post('/api/payments/otp/send', { phone: phone, orderId: pendingOrderId }, { headers: { Authorization: `Bearer ${token}` } });
-      toast({ title: 'OTP sent to your number' });
+      toast({ title: 'OTP sent to your phone number only.' });
       setOtpStep('otp');
       setOtpValue('');
     } catch (e: any) {
@@ -156,6 +165,18 @@ export default function CheckoutPage() {
       setIsLoading(false);
     }
   };
+
+  if (isEditor) {
+    return (
+      <div className="container mx-auto px-4 py-20 text-center max-w-lg">
+        <h1 className="font-display text-3xl tracking-wider mb-4" style={{ fontFamily: 'Bebas Neue, serif' }}>Checkout Restricted</h1>
+        <p className="text-muted-foreground mb-6">
+          Editors cannot place orders. Checkout is only available for customers and admins.
+        </p>
+        <Link href="/products"><Button className="btn-primary">Continue Shopping</Button></Link>
+      </div>
+    );
+  }
 
   if (items.length === 0 && otpStep === 'idle') {
     return (
@@ -196,7 +217,7 @@ export default function CheckoutPage() {
                 placeholder="6-digit OTP"
                 maxLength={6}
               />
-              <p className="text-xs text-muted-foreground">In development you can use OTP: 123456</p>
+              <p className="text-xs text-muted-foreground">OTP is sent to your phone only (not email). In development use: 123456</p>
               <Button className="w-full btn-primary gap-2" onClick={handleVerifyOtp} disabled={isLoading || otpValue.length < 4}>
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
                 Verify & Pay ৳{finalTotal.toLocaleString()}

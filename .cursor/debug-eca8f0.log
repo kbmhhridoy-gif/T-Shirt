@@ -1,0 +1,2 @@
+{"sessionId":"eca8f0","location":"route.ts:catch","message":"analytics error","data":{"errMsg":"Do not know how to serialize a BigInt","errName":"TypeError"},"timestamp":1771754393867,"hypothesisId":"error"}
+{"sessionId":"eca8f0","location":"route.ts:catch","message":"analytics error","data":{"errMsg":"Do not know how to serialize a BigInt","errName":"TypeError"},"timestamp":1771754394099,"hypothesisId":"error"}

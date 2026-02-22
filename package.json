@@ -10,7 +10,7 @@
     "db:generate": "dotenv -e .env -- prisma generate",
     "db:push": "dotenv -e .env -- prisma db push",
     "db:migrate": "dotenv -e .env -- prisma migrate dev",
-    "db:seed": "dotenv -e .env -- ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
+    "db:seed": "dotenv -e .env -- ts-node -P tsconfig.seed.json prisma/seed.ts",
     "db:studio": "dotenv -e .env -- prisma studio"
   },
   "dependencies": {

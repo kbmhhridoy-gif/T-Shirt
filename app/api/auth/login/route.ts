@@ -7,7 +7,9 @@ import { successResponse, errorResponse, forbiddenResponse } from '@/lib/api';
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password } = await req.json();
+    const body = await req.json();
+    const email = typeof body.email === 'string' ? body.email.trim() : '';
+    const password = typeof body.password === 'string' ? body.password : '';
 
     if (!email || !password) {
       return errorResponse('Email and password are required');
@@ -21,7 +23,7 @@ export async function POST(req: NextRequest) {
       return errorResponse('Invalid credentials', 401);
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password.trim(), user.password);
     if (!isPasswordValid) {
       return errorResponse('Invalid credentials', 401);
     }

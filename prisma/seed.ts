@@ -5,11 +5,11 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  // Seed admin
+  // Seed admin (update password too so re-seed resets to admin123)
   const adminPassword = await bcrypt.hash('admin123', 12);
   const admin = await prisma.user.upsert({
     where: { email: 'admin@threadhaus.com' },
-    update: {},
+    update: { password: adminPassword, role: Role.ADMIN, name: 'Super Admin' },
     create: {
       name: 'Super Admin',
       email: 'admin@threadhaus.com',
@@ -18,11 +18,11 @@ async function main() {
     },
   });
 
-  // Seed editor
+  // Seed editor (update password too so re-seed resets to editor123)
   const editorPassword = await bcrypt.hash('editor123', 12);
   const editor = await prisma.user.upsert({
     where: { email: 'editor@threadhaus.com' },
-    update: {},
+    update: { password: editorPassword, role: Role.EDITOR, name: 'Content Editor' },
     create: {
       name: 'Content Editor',
       email: 'editor@threadhaus.com',

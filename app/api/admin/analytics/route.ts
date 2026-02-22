@@ -49,16 +49,16 @@ export async function GET(req: NextRequest) {
       prisma.order.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
     ]);
 
-    // Sales by day for chart (last 7 days)
+    // Sales by day for chart (last 7 days) — use Prisma column names (camelCase)
     const salesData = await prisma.$queryRaw`
       SELECT
-        DATE(created_at) as date,
+        DATE("createdAt") as date,
         COUNT(*) as orders,
-        COALESCE(SUM(total_amount), 0) as revenue
+        COALESCE(SUM("totalAmount"), 0) as revenue
       FROM orders
-      WHERE created_at >= ${sevenDaysAgo}
-        AND payment_status = 'PAID'
-      GROUP BY DATE(created_at)
+      WHERE "createdAt" >= ${sevenDaysAgo}
+        AND "paymentStatus" = 'PAID'
+      GROUP BY DATE("createdAt")
       ORDER BY date ASC
     ` as any[];
 

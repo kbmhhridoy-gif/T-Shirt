@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     // Single optimized query: orders with user, order items, and product details
     const orders = await prisma.order.findMany({
       include: {
-        user: { select: { name: true, email: true, phone: true } },
+      user: { select: { name: true, email: true, phone: true } },
         orderItems: {
           include: { product: { select: { title: true, price: true } } },
         },
@@ -28,11 +28,17 @@ export async function GET(req: NextRequest) {
     });
 
     const rows = orders.map((o) => {
-      const phone = o.user.phone || (o.shippingAddr || '').split(',')[1]?.trim() || '—';
+      const customerName = o.user?.name || o.guestName || 'Guest';
+      const email = o.user?.email || o.guestEmail || '—';
+      const phone =
+        o.user?.phone ||
+        o.guestPhone ||
+        (o.shippingAddr || '').split(',')[1]?.trim() ||
+        '—';
       return {
         orderId: o.id,
-        customerName: o.user.name,
-        email: o.user.email,
+        customerName,
+        email,
         phone,
         paymentMethod: o.paymentMethod,
         amount: o.totalAmount,

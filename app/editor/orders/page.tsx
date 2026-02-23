@@ -63,13 +63,15 @@ export default function EditorOrdersPage() {
         {orders.map((order) => {
           const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.PENDING;
           const StatusIcon = config.icon;
+          const customerName = order.user?.name || order.guestName || 'Guest';
+          const customerPhone = order.user?.phone || order.guestPhone || '—';
           return (
             <div key={order.id} className="border border-border rounded-sm bg-card">
               <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-3 sm:gap-4 p-4 sm:p-5 border-b border-border">
                 <div>
                   <p className="font-mono text-xs text-muted-foreground">#{order.id.slice(-8).toUpperCase()}</p>
-                  <p className="font-medium mt-0.5">{order.user?.name}</p>
-                  <p className="text-xs text-muted-foreground">{order.user?.email}</p>
+                  <p className="font-medium mt-0.5">{customerName}</p>
+                  <p className="text-xs text-muted-foreground">{order.user?.email || order.guestEmail || customerPhone}</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <p className="font-semibold">৳{order.totalAmount.toLocaleString()}</p>

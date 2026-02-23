@@ -129,6 +129,8 @@ export default function AdminOrdersPage() {
         {orders.map((order) => {
           const config = STATUS_CONFIG[order.status as keyof typeof STATUS_CONFIG];
           const StatusIcon = config.icon;
+          const customerName = order.user?.name || order.guestName || 'Guest';
+          const customerEmail = order.user?.email || order.guestEmail || '—';
 
           return (
             <div key={order.id} className="border border-border rounded-sm bg-card">
@@ -137,8 +139,8 @@ export default function AdminOrdersPage() {
                   <p className="font-mono text-xs text-muted-foreground">
                     #{order.id.slice(-8).toUpperCase()}
                   </p>
-                  <p className="font-medium mt-0.5">{order.user?.name}</p>
-                  <p className="text-xs text-muted-foreground">{order.user?.email}</p>
+                  <p className="font-medium mt-0.5">{customerName}</p>
+                  <p className="text-xs text-muted-foreground">{customerEmail}</p>
                   {order.editor && (
                     <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                       <User className="h-3 w-3" /> {order.editor.name}

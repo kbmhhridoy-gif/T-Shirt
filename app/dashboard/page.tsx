@@ -197,15 +197,18 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {recentOrders?.map((order: any) => (
+              {recentOrders?.map((order: any) => {
+                const customerName = order.user?.name || order.guestName || 'Guest';
+                const email = order.user?.email || order.guestEmail || '—';
+                return (
                 <tr key={order.id} className="border-b border-border/50 hover:bg-secondary/50 transition-colors">
                   <td className="px-4 sm:px-6 py-3 sm:py-4 font-mono text-xs text-muted-foreground">
                     #{order.id.slice(-8).toUpperCase()}
                   </td>
                   <td className="px-4 sm:px-6 py-3 sm:py-4">
                     <div className="min-w-0">
-                      <p className="font-medium truncate">{order.user.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">{order.user.email}</p>
+                      <p className="font-medium truncate">{customerName}</p>
+                      <p className="text-xs text-muted-foreground truncate">{email}</p>
                     </div>
                   </td>
                   <td className="px-4 sm:px-6 py-3 sm:py-4 font-medium whitespace-nowrap">৳{order.totalAmount.toLocaleString()}</td>
@@ -216,7 +219,7 @@ export default function DashboardPage() {
                     </span>
                   </td>
                 </tr>
-              ))}
+              )})}
             </tbody>
           </table>
         </div>

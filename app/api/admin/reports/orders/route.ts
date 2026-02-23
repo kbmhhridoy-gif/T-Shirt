@@ -5,6 +5,8 @@ import { getUserFromRequest } from '@/lib/auth';
 import PDFDocument from 'pdfkit';
 import ExcelJS from 'exceljs';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const user = await getUserFromRequest(req);

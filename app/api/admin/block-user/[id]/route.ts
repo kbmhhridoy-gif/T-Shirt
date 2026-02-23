@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma';
 import { getUserFromRequest } from '@/lib/auth';
 import { successResponse, errorResponse, unauthorizedResponse, forbiddenResponse } from '@/lib/api';
 
+export const dynamic = 'force-dynamic';
+
 // PATCH /api/admin/block-user/:id
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {

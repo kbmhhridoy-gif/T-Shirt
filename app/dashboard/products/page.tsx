@@ -43,8 +43,11 @@ export default function AdminProductsPage() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const params = search ? `&search=${search}` : '';
-      const { data } = await axios.get(`/api/products?limit=50${params}`);
+      const params = new URLSearchParams({ limit: '50', includeInactive: 'true' });
+      if (search) params.set('search', search);
+      const { data } = await axios.get(`/api/products?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setProducts(data.products);
     } finally {
       setLoading(false);
@@ -129,6 +132,20 @@ export default function AdminProductsPage() {
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Delete failed';
       toast({ title: 'Cannot delete', description: msg, variant: 'destructive' });
+    }
+  };
+
+  const handleToggleFeatured = async (product: any) => {
+    try {
+      await axios.patch(
+        `/api/products/${product.id}`,
+        { isFeatured: !product.isFeatured },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast({ title: product.isFeatured ? 'Removed from Featured' : 'Marked as Featured' });
+      fetchProducts();
+    } catch {
+      toast({ title: 'Update failed', variant: 'destructive' });
     }
   };
 
@@ -218,9 +235,20 @@ export default function AdminProductsPage() {
                   </span>
                 </td>
                 <td className="px-6 py-4">
-                  {product.isFeatured && (
-                    <Star className="h-4 w-4 text-primary fill-primary" />
-                  )}
+                  <button
+                    onClick={() => handleToggleFeatured(product)}
+                    title={product.isFeatured ? 'Remove from Featured' : 'Mark as Featured'}
+                    className="flex items-center gap-1.5"
+                  >
+                    {product.isFeatured ? (
+                      <Star className="h-4 w-4 text-primary fill-primary" />
+                    ) : (
+                      <Star className="h-4 w-4 text-muted-foreground/40 hover:text-primary" />
+                    )}
+                    <span className="text-xs text-muted-foreground">
+                      {product.isFeatured ? 'Featured' : 'Feature'}
+                    </span>
+                  </button>
                 </td>
                 <td className="px-6 py-4">
                   <button onClick={() => handleToggleActive(product)}>

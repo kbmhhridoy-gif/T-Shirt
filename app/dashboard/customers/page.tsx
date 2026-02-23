@@ -23,6 +23,7 @@ export default function CustomersPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
+  const [showBlockedOnly, setShowBlockedOnly] = useState(false);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -30,6 +31,7 @@ export default function CustomersPage() {
       const params = new URLSearchParams({ limit: '50' });
       if (search) params.set('search', search);
       if (roleFilter) params.set('role', roleFilter);
+      if (showBlockedOnly) params.set('blocked', 'true');
 
       const { data } = await axios.get(`/api/users?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -45,11 +47,15 @@ export default function CustomersPage() {
   useEffect(() => {
     const timeout = setTimeout(fetchUsers, 300);
     return () => clearTimeout(timeout);
-  }, [search, roleFilter]);
+  }, [search, roleFilter, showBlockedOnly]);
 
   const handleToggleBlock = async (userId: string, isBlocked: boolean) => {
     try {
-      await axios.patch('/api/users/block', { userId, isBlocked: !isBlocked }, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.patch(
+        `/api/admin/block-user/${userId}`,
+        { isBlocked: !isBlocked },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       toast({ title: isBlocked ? 'User Unblocked' : 'User Blocked' });
       fetchUsers();
     } catch (err: any) {
@@ -111,6 +117,14 @@ export default function CustomersPage() {
               {role || 'All'}
             </Button>
           ))}
+          <Button
+            variant={showBlockedOnly ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setShowBlockedOnly((v) => !v)}
+            className="text-xs"
+          >
+            {showBlockedOnly ? 'Show All' : 'Blocked Only'}
+          </Button>
         </div>
       </div>
 
@@ -204,7 +218,7 @@ export default function CustomersPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        {user.role !== 'EDITOR' && (
+                        {user.role !== 'EDITOR' && user.role !== 'ADMIN' && (
                           <DropdownMenuItem
                             className={user.isBlocked ? 'text-green-400' : 'text-destructive'}
                             onClick={() => handleToggleBlock(user.id, user.isBlocked)}
@@ -216,7 +230,7 @@ export default function CustomersPage() {
                           <>
                             <DropdownMenuItem
                               className={user.isBlocked ? 'text-green-400' : 'text-destructive'}
-                              onClick={() => handleToggleBlock(user.id, user.isBlocked)}
+                              onClick={() => handleToggleBlock(user.id, user.isBlocked ?? false)}
                             >
                               {user.isBlocked ? <><CheckCircle className="h-4 w-4 mr-2" /> Unblock</> : <><Ban className="h-4 w-4 mr-2" /> Block</>}
                             </DropdownMenuItem>

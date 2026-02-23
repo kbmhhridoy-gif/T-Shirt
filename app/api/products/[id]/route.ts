@@ -20,6 +20,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     if (!product) return errorResponse('Product not found', 404);
 
+    // Hide inactive (soft-deleted) products from public; admin/editor can still view
+    const user = await getUserFromRequest(req);
+    const canViewInactive = user && ['ADMIN', 'EDITOR'].includes(user.role);
+    if (!product.isActive && !canViewInactive) {
+      return errorResponse('Product not found', 404);
+    }
+
     const avgRating =
       product.reviews.length > 0
         ? product.reviews.reduce((sum, r) => sum + r.rating, 0) / product.reviews.length

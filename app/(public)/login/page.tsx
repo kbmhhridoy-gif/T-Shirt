@@ -6,12 +6,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, Eye, EyeOff, LogIn } from 'lucide-react';
+import { Loader2, Eye, EyeOff, LogIn, Ban } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { loginUser, clearError } from '@/store/slices/authSlice';
+import { loginUser, clearError, logout } from '@/store/slices/authSlice';
 import { useToast } from '@/components/ui/use-toast';
 import { useState } from 'react';
 
@@ -30,6 +30,7 @@ export default function LoginPage() {
   const { isLoading, error, isAuthenticated, user } = useAppSelector((s) => s.auth);
   const [showPassword, setShowPassword] = useState(false);
   const redirect = searchParams.get('redirect') || null;
+  const isBlocked = searchParams.get('blocked') === '1';
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -42,6 +43,12 @@ export default function LoginPage() {
       else router.push(redirect || '/');
     }
   }, [isAuthenticated, user, router, redirect]);
+
+  useEffect(() => {
+    if (isBlocked) {
+      dispatch(logout());
+    }
+  }, [isBlocked, dispatch]);
 
   useEffect(() => {
     if (error) {
@@ -99,6 +106,15 @@ export default function LoginPage() {
           </div>
 
           <h2 className="text-2xl font-semibold mb-2">Sign In</h2>
+          {isBlocked && (
+            <div className="mb-6 p-4 rounded-md bg-destructive/15 border border-destructive/30 text-destructive flex items-start gap-3">
+              <Ban className="h-5 w-5 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium">Account blocked</p>
+                <p className="text-sm mt-1">Your account has been blocked by admin. Contact support.</p>
+              </div>
+            </div>
+          )}
           <p className="text-muted-foreground text-sm mb-8">
             Don't have an account?{' '}
             <Link href="/register" className="text-primary hover:underline">

@@ -115,8 +115,9 @@ export default function HomePage() {
       {/* Stats strip */}
       <section className="border-y border-border bg-card/50">
         <div className="container mx-auto px-4 py-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
             {[
+              { value: '20+', label: 'Products' },
               { value: '280gsm', label: 'Premium Weight' },
               { value: '100%', label: 'Organic Cotton' },
               { value: '4', label: 'Cut Styles' },

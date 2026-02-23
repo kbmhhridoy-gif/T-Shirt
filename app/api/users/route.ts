@@ -15,10 +15,13 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const role = searchParams.get('role');
     const search = searchParams.get('search') || '';
+    const blocked = searchParams.get('blocked');
     const skip = (page - 1) * limit;
 
     const where: any = {};
     if (role) where.role = role;
+    if (blocked === 'true') where.isBlocked = true;
+    if (blocked === 'false') where.isBlocked = false;
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },

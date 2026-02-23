@@ -23,6 +23,7 @@ interface ProductCardProps {
     reviewCount?: number;
     isFeatured?: boolean;
     stock?: number;
+    createdAt?: string;
   };
 }
 
@@ -30,6 +31,9 @@ export function ProductCard({ product }: ProductCardProps) {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
 
+  const isNew =
+    product.createdAt &&
+    new Date().getTime() - new Date(product.createdAt).getTime() < 30 * 24 * 60 * 60 * 1000;
   const discount = product.comparePrice
     ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
     : 0;
@@ -64,9 +68,9 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Link href={`/products/${product.id}`}>
-      <div className="product-card rounded-sm group">
+      <div className="product-card rounded-sm group bg-card dark:bg-gray-900/50">
         {/* Image */}
-        <div className="relative aspect-[4/5] overflow-hidden bg-secondary">
+        <div className="relative aspect-[4/5] overflow-hidden bg-secondary dark:bg-gray-800/50">
           <Image
             src={product.image}
             alt={product.title}
@@ -78,8 +82,13 @@ export function ProductCard({ product }: ProductCardProps) {
           {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-1">
             {product.isFeatured && (
-              <Badge className="bg-primary text-primary-foreground text-xs rounded-sm">
+              <Badge className="bg-primary text-primary-foreground text-xs rounded-sm dark:bg-primary dark:text-primary-foreground">
                 Featured
+              </Badge>
+            )}
+            {isNew && (
+              <Badge className="bg-emerald-600 text-white text-xs rounded-sm dark:bg-emerald-500 dark:text-white border-0">
+                New
               </Badge>
             )}
             {discount > 0 && (
@@ -139,7 +148,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
           {/* Price */}
           <div className="flex items-center gap-2 mt-2">
-            <span className="font-semibold text-foreground">৳{product.price.toLocaleString()}</span>
+            <span className="font-semibold text-foreground dark:text-white">৳{product.price.toLocaleString()}</span>
             {product.comparePrice && (
               <span className="text-xs text-muted-foreground line-through">
                 ৳{product.comparePrice.toLocaleString()}

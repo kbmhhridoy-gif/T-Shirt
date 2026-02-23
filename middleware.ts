@@ -1,6 +1,7 @@
 // middleware.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 const publicPaths = [
   '/',
@@ -46,6 +47,22 @@ export async function middleware(req: NextRequest) {
       return NextResponse.json({ success: false, message: 'Invalid token' }, { status: 401 });
     }
     return NextResponse.redirect(new URL('/login', req.url));
+  }
+
+  // DB check for blocked users on all protected routes
+  const dbUser = await prisma.user.findUnique({
+    where: { id: payload.userId },
+    select: { isBlocked: true },
+  });
+
+  if (!dbUser || dbUser.isBlocked) {
+    const message = 'Your account has been blocked by admin. Contact support.';
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ success: false, message }, { status: 403 });
+    }
+    const loginUrl = new URL('/login', req.url);
+    loginUrl.searchParams.set('blocked', '1');
+    return NextResponse.redirect(loginUrl);
   }
 
   // Admin only routes

@@ -12,14 +12,19 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '12');
     const search = searchParams.get('search') || '';
     const featured = searchParams.get('featured') === 'true';
+    const includeInactive = searchParams.get('includeInactive') === 'true';
     const sortBy = searchParams.get('sortBy') || 'createdAt';
     const sortOrder = searchParams.get('sortOrder') || 'desc';
     const minPrice = parseFloat(searchParams.get('minPrice') || '0');
     const maxPrice = parseFloat(searchParams.get('maxPrice') || '999999');
     const skip = (page - 1) * limit;
 
+    // Only admin/editor can see inactive (soft-deleted) products
+    const user = await getUserFromRequest(req);
+    const showInactive = includeInactive && user && ['ADMIN', 'EDITOR'].includes(user.role);
+
     const where: any = {
-      isActive: true,
+      ...(showInactive ? {} : { isActive: true }),
       price: { gte: minPrice, lte: maxPrice },
     };
 

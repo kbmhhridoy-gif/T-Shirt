@@ -27,7 +27,7 @@ export default function ProductsPage() {
     try {
       const params = new URLSearchParams({
         page: currentPage.toString(),
-        limit: '12',
+        limit: '20',
         sortBy: isNew ? 'createdAt' : sortBy,
         sortOrder: isNew ? 'desc' : sortOrder,
         ...(search && { search }),
@@ -114,7 +114,7 @@ export default function ProductsPage() {
       {/* Grid */}
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {[...Array(12)].map((_, i) => (
+          {[...Array(20)].map((_, i) => (
             <div key={i} className="aspect-[4/5] shimmer-bg rounded-sm" />
           ))}
         </div>

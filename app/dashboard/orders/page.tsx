@@ -98,19 +98,19 @@ export default function AdminOrdersPage() {
   };
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className="mb-6 sm:mb-8">
         <h1
-          className="font-display text-4xl tracking-wider"
+          className="font-display text-3xl sm:text-4xl tracking-wider"
           style={{ fontFamily: 'Bebas Neue, serif' }}
         >
           Orders
         </h1>
-        <p className="text-muted-foreground mt-1">{orders.length} orders</p>
+        <p className="text-muted-foreground mt-1 text-sm sm:text-base">{orders.length} orders</p>
       </div>
 
       {/* Filter */}
-      <div className="flex gap-2 mb-6 flex-wrap">
+      <div className="flex gap-2 mb-4 sm:mb-6 flex-wrap">
         {['', ...STATUS_OPTIONS].map((status) => (
           <Button
             key={status}
@@ -132,7 +132,7 @@ export default function AdminOrdersPage() {
 
           return (
             <div key={order.id} className="border border-border rounded-sm bg-card">
-                <div className="flex flex-wrap items-center justify-between gap-4 p-5 border-b border-border">
+                <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-3 sm:gap-4 p-4 sm:p-5 border-b border-border">
                 <div>
                   <p className="font-mono text-xs text-muted-foreground">
                     #{order.id.slice(-8).toUpperCase()}
@@ -146,8 +146,8 @@ export default function AdminOrdersPage() {
                   )}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-4">
-                  <div className="text-right">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                  <div className="text-left sm:text-right">
                     <p className="font-semibold">৳{order.totalAmount.toLocaleString()}</p>
                     <p className="text-xs text-muted-foreground">{order.paymentMethod}</p>
                   </div>
@@ -171,10 +171,10 @@ export default function AdminOrdersPage() {
                       <option key={s} value={s}>{s}</option>
                     ))}
                   </select>
-                  <div className="flex items-center gap-1">
-                    <User className="h-3.5 w-3.5 text-muted-foreground" />
+                  <div className="flex items-center gap-1 w-full sm:w-auto">
+                    <User className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                     <select
-                      className="text-xs bg-secondary border border-border rounded-sm px-2 py-1.5 text-foreground min-w-[140px]"
+                      className="text-xs bg-secondary border border-border rounded-sm px-2 py-1.5 text-foreground min-w-0 flex-1 sm:min-w-[140px] sm:flex-initial"
                       value={order.editorId || ''}
                       onChange={(e) => updateOrderEditor(order.id, e.target.value)}
                     >
@@ -187,7 +187,7 @@ export default function AdminOrdersPage() {
                 </div>
               </div>
 
-              <div className="p-5 flex flex-wrap gap-3">
+              <div className="p-4 sm:p-5 flex flex-wrap gap-3">
                 {order.orderItems?.map((item: any) => (
                   <div key={item.id} className="flex items-center gap-2 text-xs">
                     <span className="font-medium">{item.product?.title}</span>
@@ -199,7 +199,7 @@ export default function AdminOrdersPage() {
                 ))}
               </div>
 
-              <div className="px-5 pb-4 text-xs text-muted-foreground">
+              <div className="px-4 sm:px-5 pb-4 text-xs text-muted-foreground break-words">
                 {new Date(order.createdAt).toLocaleString()}
                 {order.shippingAddr && ` · ${order.shippingAddr}`}
               </div>

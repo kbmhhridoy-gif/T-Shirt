@@ -233,14 +233,14 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <Link href="/cart" className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-8 transition-colors">
+    <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <Link href="/cart" className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-6 sm:mb-8 transition-colors">
         <ArrowLeft className="h-4 w-4" /> Back to Cart
       </Link>
-      <h1 className="font-display text-5xl tracking-wider mb-10" style={{ fontFamily: 'Bebas Neue, serif' }}>Checkout</h1>
+      <h1 className="font-display text-4xl sm:text-5xl tracking-wider mb-6 sm:mb-10" style={{ fontFamily: 'Bebas Neue, serif' }}>Checkout</h1>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid lg:grid-cols-5 gap-10">
-          <div className="lg:col-span-3 space-y-8">
+        <div className="grid lg:grid-cols-5 gap-6 lg:gap-10">
+          <div className="lg:col-span-3 space-y-6 sm:space-y-8">
             <div className="border border-border rounded-sm p-6 bg-card">
               <h2 className="text-lg font-semibold mb-6">Delivery Information</h2>
               <div className="space-y-4">
@@ -315,7 +315,7 @@ export default function CheckoutPage() {
             </div>
           </div>
           <div className="lg:col-span-2">
-            <div className="border border-border rounded-sm p-6 bg-card sticky top-24">
+            <div className="border border-border rounded-sm p-4 sm:p-6 bg-card sticky top-20 sm:top-24">
               <h2 className="text-lg font-semibold mb-6">Order Summary</h2>
               <div className="space-y-3 mb-6">
                 {items.map((item) => (

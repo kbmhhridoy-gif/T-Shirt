@@ -163,25 +163,25 @@ export default function AdminProductsPage() {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
         <div>
           <h1
-            className="font-display text-4xl tracking-wider"
+            className="font-display text-3xl sm:text-4xl tracking-wider"
             style={{ fontFamily: 'Bebas Neue, serif' }}
           >
             Products
           </h1>
-          <p className="text-muted-foreground mt-1">{products.length} products</p>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">{products.length} products</p>
         </div>
-        <Button className="btn-primary gap-2" onClick={openCreate}>
+        <Button className="btn-primary gap-2 w-full sm:w-auto" onClick={openCreate}>
           <Plus className="h-4 w-4" />
           Add Product
         </Button>
       </div>
 
       {/* Search */}
-      <div className="relative max-w-sm mb-6">
+      <div className="relative w-full sm:max-w-sm mb-4 sm:mb-6">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Search products..."
@@ -193,11 +193,12 @@ export default function AdminProductsPage() {
 
       {/* Products table */}
       <div className="border border-border rounded-sm bg-card overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <table className="w-full text-sm min-w-[640px]">
           <thead>
             <tr className="border-b border-border bg-secondary/30">
               {['Product', 'Price', 'Stock', 'Featured', 'Status', 'Actions'].map((h) => (
-                <th key={h} className="text-left text-xs text-muted-foreground uppercase tracking-wider px-6 py-4">
+                <th key={h} className="text-left text-xs text-muted-foreground uppercase tracking-wider px-4 sm:px-6 py-3 sm:py-4">
                   {h}
                 </th>
               ))}
@@ -206,12 +207,12 @@ export default function AdminProductsPage() {
           <tbody>
             {products.map((product) => (
               <tr key={product.id} className="border-b border-border/50 hover:bg-secondary/20 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
+                <td className="px-4 sm:px-6 py-3 sm:py-4">
+                  <div className="flex items-center gap-3 min-w-0">
                     <div className="relative w-10 h-12 overflow-hidden rounded-sm flex-shrink-0">
-                      <Image src={product.image} alt={product.title} fill className="object-cover" />
+                      <Image src={product.image} alt={product.title} fill className="object-cover" sizes="40px" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <p className="font-medium line-clamp-1">{product.title}</p>
                       <p className="text-xs text-muted-foreground">
                         {product.availableCuts?.length} cuts · {product.sizes?.length} sizes
@@ -219,7 +220,7 @@ export default function AdminProductsPage() {
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-4 sm:px-6 py-3 sm:py-4">
                   <div>
                     <p className="font-medium">৳{product.price.toLocaleString()}</p>
                     {product.comparePrice && (
@@ -229,12 +230,12 @@ export default function AdminProductsPage() {
                     )}
                   </div>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-4 sm:px-6 py-3 sm:py-4">
                   <span className={product.stock < 10 ? 'text-red-400 font-medium' : 'text-muted-foreground'}>
                     {product.stock}
                   </span>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-4 sm:px-6 py-3 sm:py-4">
                   <button
                     onClick={() => handleToggleFeatured(product)}
                     title={product.isFeatured ? 'Remove from Featured' : 'Mark as Featured'}
@@ -250,7 +251,7 @@ export default function AdminProductsPage() {
                     </span>
                   </button>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-4 sm:px-6 py-3 sm:py-4">
                   <button onClick={() => handleToggleActive(product)}>
                     {product.isActive ? (
                       <Badge className="bg-green-400/10 text-green-400 border-green-400/20 text-xs cursor-pointer">
@@ -263,7 +264,7 @@ export default function AdminProductsPage() {
                     )}
                   </button>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-4 sm:px-6 py-3 sm:py-4">
                   <div className="flex items-center gap-2">
                     <Link href={`/products/${product.id}`}>
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -292,6 +293,7 @@ export default function AdminProductsPage() {
             ))}
           </tbody>
         </table>
+        </div>
 
         {!loading && products.length === 0 && (
           <div className="p-8 text-center text-muted-foreground">No products found</div>
@@ -300,14 +302,14 @@ export default function AdminProductsPage() {
 
       {/* Create/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto w-[95vw] sm:w-full">
           <DialogHeader>
             <DialogTitle>
               {editingProduct ? 'Edit Product' : 'Add New Product'}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="grid grid-cols-2 gap-4 py-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
             <div className="col-span-2">
               <Label>Title</Label>
               <Input

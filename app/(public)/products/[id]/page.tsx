@@ -128,10 +128,10 @@ export default function ProductDetailPage() {
     : 0;
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="grid md:grid-cols-2 gap-12 lg:gap-20">
+    <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <div className="grid md:grid-cols-2 gap-8 sm:gap-12 lg:gap-20">
         {/* Images */}
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           <div className="relative aspect-square overflow-hidden rounded-sm bg-secondary">
             <Image
               src={product.images?.[activeImage] || product.image}
@@ -159,12 +159,12 @@ export default function ProductDetailPage() {
           </div>
 
           {product.images?.length > 1 && (
-            <div className="flex gap-2">
+            <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 snap-x snap-mandatory">
               {product.images.map((img: string, i: number) => (
                 <button
                   key={i}
                   className={cn(
-                    'w-16 h-16 relative rounded-sm overflow-hidden border-2 transition-colors',
+                    'w-14 h-14 sm:w-16 sm:h-16 relative rounded-sm overflow-hidden border-2 transition-colors flex-shrink-0 snap-center',
                     activeImage === i ? 'border-primary' : 'border-border'
                   )}
                   onClick={() => setActiveImage(i)}
@@ -193,7 +193,7 @@ export default function ProductDetailPage() {
           </div>
 
           <h1
-            className="font-display text-4xl md:text-5xl tracking-wider mb-3"
+            className="font-display text-3xl sm:text-4xl md:text-5xl tracking-wider mb-3"
             style={{ fontFamily: 'Bebas Neue, serif' }}
           >
             {product.title}
@@ -231,7 +231,7 @@ export default function ProductDetailPage() {
           </p>
 
           {/* ── CUSTOMIZER ── */}
-          <div className="space-y-6 border border-border rounded-sm p-5 mb-6">
+          <div className="space-y-5 sm:space-y-6 border border-border rounded-sm p-4 sm:p-5 mb-6">
             <h3 className="text-xs tracking-[0.3em] uppercase text-muted-foreground">
               Customize Your Tee
             </h3>
@@ -286,7 +286,7 @@ export default function ProductDetailPage() {
             {/* Cut selection */}
             <div>
               <p className="text-sm font-medium mb-3">Cut Style</p>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {product.availableCuts.map((cut: string) => (
                   <button
                     key={cut}
@@ -335,7 +335,7 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Button
               className="flex-1 btn-primary gap-2"
               onClick={handleAddToCart}
@@ -355,7 +355,7 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Trust badges */}
-          <div className="grid grid-cols-3 gap-3 mt-6 pt-6 border-t border-border">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-6 pt-6 border-t border-border">
             {[
               { icon: Truck, label: 'Fast Delivery' },
               { icon: Shield, label: 'Secure Payment' },
@@ -372,14 +372,14 @@ export default function ProductDetailPage() {
 
       {/* Reviews */}
       {product.reviews?.length > 0 && (
-        <div className="mt-20 border-t border-border pt-12">
+        <div className="mt-12 sm:mt-20 border-t border-border pt-8 sm:pt-12">
           <h2
-            className="font-display text-4xl tracking-wider mb-8"
+            className="font-display text-3xl sm:text-4xl tracking-wider mb-6 sm:mb-8"
             style={{ fontFamily: 'Bebas Neue, serif' }}
           >
             Customer Reviews
           </h2>
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4">
             {product.reviews.map((review: any) => (
               <div key={review.id} className="border border-border rounded-sm p-5">
                 <div className="flex items-center gap-3 mb-3">

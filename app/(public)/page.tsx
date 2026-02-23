@@ -52,7 +52,7 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative min-h-[100vh] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[85vh] sm:min-h-[90vh] md:min-h-[100vh] flex items-center justify-center overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 z-0">
           <Image
@@ -61,15 +61,16 @@ export default function HomePage() {
             fill
             className="object-cover opacity-20"
             priority
+            sizes="100vw"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-background via-background/60 to-background" />
         </div>
 
-        {/* Decorative lines */}
-        <div className="absolute left-8 top-1/4 bottom-1/4 w-px bg-gradient-to-b from-transparent via-primary/40 to-transparent" />
-        <div className="absolute right-8 top-1/4 bottom-1/4 w-px bg-gradient-to-b from-transparent via-primary/40 to-transparent" />
+        {/* Decorative lines - hidden on small screens */}
+        <div className="absolute left-4 md:left-8 top-1/4 bottom-1/4 w-px bg-gradient-to-b from-transparent via-primary/40 to-transparent hidden sm:block" />
+        <div className="absolute right-4 md:right-8 top-1/4 bottom-1/4 w-px bg-gradient-to-b from-transparent via-primary/40 to-transparent hidden sm:block" />
 
-        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
+        <div className="relative z-10 text-center px-4 sm:px-6 max-w-5xl mx-auto">
           {/* Tag */}
           <div className="inline-flex items-center gap-2 border border-primary/30 rounded-sm px-4 py-2 mb-8">
             <Zap className="h-3 w-3 text-primary" />
@@ -86,12 +87,12 @@ export default function HomePage() {
             <span className="block text-primary">HAUS</span>
           </h1>
 
-          <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-            Premium T-shirts crafted for the bold. Each piece designed with intention — 
+          <p className="text-muted-foreground text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed px-1">
+            Premium T-shirts crafted for the bold. Each piece designed with intention —
             heavyweight fabrics, custom cuts, curated for those who dare to stand out.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
             <Link href="/products">
               <Button size="lg" className="btn-primary gap-2 text-sm">
                 Explore Collection
@@ -114,8 +115,8 @@ export default function HomePage() {
 
       {/* Stats strip */}
       <section className="border-y border-border bg-card/50">
-        <div className="container mx-auto px-4 py-6">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
+        <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-6 text-center">
             {[
               { value: '20+', label: 'Products' },
               { value: '280gsm', label: 'Premium Weight' },
@@ -137,12 +138,12 @@ export default function HomePage() {
       </section>
 
       {/* Featured Products */}
-      <section className="container mx-auto px-4 py-20">
-        <div className="flex items-end justify-between mb-10">
+      <section className="container mx-auto px-4 sm:px-6 py-12 sm:py-20">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 sm:mb-10">
           <div>
             <p className="text-xs tracking-[0.4em] uppercase text-primary mb-3">Handpicked</p>
             <h2
-              className="font-display text-5xl md:text-6xl tracking-wider"
+              className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wider"
               style={{ fontFamily: 'Bebas Neue, serif' }}
             >
               Featured
@@ -150,8 +151,8 @@ export default function HomePage() {
               Collection
             </h2>
           </div>
-          <Link href="/products?featured=true">
-            <Button variant="ghost" className="gap-2 text-sm hidden md:flex">
+          <Link href="/products?featured=true" className="self-start sm:self-auto">
+            <Button variant="ghost" className="gap-2 text-sm">
               View All <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
@@ -173,12 +174,12 @@ export default function HomePage() {
       </section>
 
       {/* New Arrivals */}
-      <section className="container mx-auto px-4 py-20 border-t border-border">
-        <div className="flex items-end justify-between mb-10">
+      <section className="container mx-auto px-4 sm:px-6 py-12 sm:py-20 border-t border-border">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 sm:mb-10">
           <div>
             <p className="text-xs tracking-[0.4em] uppercase text-primary mb-3">Just Dropped</p>
             <h2
-              className="font-display text-5xl md:text-6xl tracking-wider"
+              className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wider"
               style={{ fontFamily: 'Bebas Neue, serif' }}
             >
               New
@@ -186,8 +187,8 @@ export default function HomePage() {
               Arrivals
             </h2>
           </div>
-          <Link href="/products?new=true">
-            <Button variant="ghost" className="gap-2 text-sm hidden md:flex">
+          <Link href="/products?new=true" className="self-start sm:self-auto">
+            <Button variant="ghost" className="gap-2 text-sm">
               View All <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
@@ -208,8 +209,8 @@ export default function HomePage() {
       </section>
 
       {/* Shop by Cut */}
-      <section className="border-y border-border bg-card/50 py-12">
-        <div className="container mx-auto px-4">
+      <section className="border-y border-border bg-card/50 py-8 sm:py-12">
+        <div className="container mx-auto px-4 sm:px-6">
           <p className="text-xs tracking-[0.4em] uppercase text-primary mb-4 text-center">
             Shop by Cut
           </p>
@@ -226,15 +227,15 @@ export default function HomePage() {
       </section>
 
       {/* T-Shirt Customizer CTA */}
-      <section className="relative overflow-hidden py-24 bg-card border-y border-border">
+      <section className="relative overflow-hidden py-12 sm:py-20 md:py-24 bg-card border-y border-border">
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0 bg-gradient-to-r from-orange-600/20 to-transparent" />
         </div>
-        <div className="container mx-auto px-4 relative">
+        <div className="container mx-auto px-4 sm:px-6 relative">
           <div className="max-w-3xl">
             <p className="text-xs tracking-[0.4em] uppercase text-primary mb-4">Personalize</p>
             <h2
-              className="font-display text-5xl md:text-7xl tracking-wider mb-6"
+              className="font-display text-4xl sm:text-5xl md:text-7xl tracking-wider mb-4 sm:mb-6"
               style={{ fontFamily: 'Bebas Neue, serif' }}
             >
               Cut It
@@ -265,8 +266,8 @@ export default function HomePage() {
       </section>
 
       {/* Features */}
-      <section className="container mx-auto px-4 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <section className="container mx-auto px-4 sm:px-6 py-12 sm:py-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
           {[
             {
               icon: Shield,
@@ -283,8 +284,8 @@ export default function HomePage() {
               title: 'Made to Order',
               desc: 'Every cut selected by you. Your style, your fabric, your statement.',
             },
-          ].map((feature) => (
-            <div key={feature.title} className="border border-border p-8 rounded-sm hover:border-primary/30 transition-colors group">
+            ].map((feature) => (
+              <div key={feature.title} className="border border-border p-6 sm:p-8 rounded-sm hover:border-primary/30 transition-colors group">
               <div className="w-10 h-10 bg-primary/10 border border-primary/20 rounded-sm flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
                 <feature.icon className="h-5 w-5 text-primary" />
               </div>
@@ -296,12 +297,12 @@ export default function HomePage() {
       </section>
 
       {/* Payment methods banner */}
-      <section className="border-t border-border bg-card/30 py-8">
-        <div className="container mx-auto px-4 text-center">
+      <section className="border-t border-border bg-card/30 py-6 sm:py-8">
+        <div className="container mx-auto px-4 sm:px-6 text-center">
           <p className="text-xs tracking-[0.3em] uppercase text-muted-foreground mb-4">
             Secure Payment via
           </p>
-          <div className="flex justify-center items-center gap-8 flex-wrap">
+          <div className="flex justify-center items-center gap-4 sm:gap-8 flex-wrap">
             {[
               { name: 'bKash', color: '#E2136E' },
               { name: 'Nagad', color: '#F7941D' },

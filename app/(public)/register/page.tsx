@@ -84,7 +84,7 @@ export default function RegisterPage() {
       </div>
 
       {/* Right - Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8">
         <div className="w-full max-w-md">
           <h2 className="text-2xl font-semibold mb-2">Create Account</h2>
           <p className="text-muted-foreground text-sm mb-8">

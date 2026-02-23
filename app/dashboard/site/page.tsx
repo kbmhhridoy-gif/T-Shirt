@@ -35,18 +35,18 @@ export default function SiteEditorPage() {
   };
 
   return (
-    <div className="p-8 max-w-2xl">
-      <div className="mb-8">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl">
+      <div className="mb-6 sm:mb-8">
         <h1
-          className="font-display text-4xl tracking-wider"
+          className="font-display text-3xl sm:text-4xl tracking-wider"
           style={{ fontFamily: 'Bebas Neue, serif' }}
         >
           Site Editor
         </h1>
-        <p className="text-muted-foreground mt-1">Customize homepage content and banners</p>
+        <p className="text-muted-foreground mt-1 text-sm sm:text-base">Customize homepage content and banners</p>
       </div>
 
-      <div className="space-y-6 border border-border rounded-sm p-6 bg-card">
+      <div className="space-y-6 border border-border rounded-sm p-4 sm:p-6 bg-card">
         <div>
           <Label>Hero Banner Title</Label>
           <Input

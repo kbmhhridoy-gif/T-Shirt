@@ -106,23 +106,23 @@ export default function EditorProductsPage() {
   };
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className="mb-6 sm:mb-8">
         <h1
-          className="font-display text-4xl tracking-wider"
+          className="font-display text-3xl sm:text-4xl tracking-wider"
           style={{ fontFamily: 'Bebas Neue, serif' }}
         >
           Editor Panel
         </h1>
-        <p className="text-muted-foreground mt-1">Manage products — update and delete only</p>
+        <p className="text-muted-foreground mt-1 text-sm sm:text-base">Manage products — update and delete only</p>
       </div>
 
       {/* Editor notice */}
-      <div className="border border-blue-800/30 bg-blue-400/5 rounded-sm p-4 mb-6 text-sm text-blue-300">
+      <div className="border border-blue-800/30 bg-blue-400/5 rounded-sm p-3 sm:p-4 mb-4 sm:mb-6 text-xs sm:text-sm text-blue-300">
         ℹ️ As an editor, you can update and delete products. Product creation and user management requires Admin access.
       </div>
 
-      <div className="relative max-w-sm mb-6">
+      <div className="relative w-full sm:max-w-sm mb-4 sm:mb-6">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Search products..."
@@ -133,11 +133,12 @@ export default function EditorProductsPage() {
       </div>
 
       <div className="border border-border rounded-sm bg-card overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <table className="w-full text-sm min-w-[400px]">
           <thead>
             <tr className="border-b border-border bg-secondary/30">
               {['Product', 'Price', 'Stock', 'Status', 'Actions'].map((h) => (
-                <th key={h} className="text-left text-xs text-muted-foreground uppercase tracking-wider px-6 py-4">
+                <th key={h} className="text-left text-xs text-muted-foreground uppercase tracking-wider px-4 sm:px-6 py-3 sm:py-4">
                   {h}
                 </th>
               ))}
@@ -197,9 +198,10 @@ export default function EditorProductsPage() {
             ))}
           </tbody>
         </table>
+        </div>
 
         {!loading && products.length === 0 && (
-          <div className="p-8 text-center text-muted-foreground">No products found</div>
+          <div className="p-6 sm:p-8 text-center text-muted-foreground">No products found</div>
         )}
       </div>
 

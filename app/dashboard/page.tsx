@@ -62,10 +62,10 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="p-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-32 shimmer-bg rounded-sm" />
+            <div key={i} className="h-28 sm:h-32 shimmer-bg rounded-sm" />
           ))}
         </div>
       </div>
@@ -110,59 +110,59 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-4">
         <div>
           <h1
-            className="font-display text-4xl tracking-wider"
+            className="font-display text-3xl sm:text-4xl tracking-wider"
             style={{ fontFamily: 'Bebas Neue, serif' }}
           >
             Dashboard
           </h1>
-          <p className="text-muted-foreground mt-1">Welcome back, Admin</p>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">Welcome back, Admin</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="gap-2" onClick={() => downloadReport('pdf')}>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" className="gap-2 text-xs sm:text-sm" onClick={() => downloadReport('pdf')}>
             <FileDown className="h-4 w-4" /> Download PDF
           </Button>
-          <Button variant="outline" size="sm" className="gap-2" onClick={() => downloadReport('xlsx')}>
+          <Button variant="outline" size="sm" className="gap-2 text-xs sm:text-sm" onClick={() => downloadReport('xlsx')}>
             <FileSpreadsheet className="h-4 w-4" /> Download Excel
           </Button>
         </div>
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         {statCards.map((card) => (
-          <div key={card.label} className="stat-card">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-xs text-muted-foreground uppercase tracking-widest">
+          <div key={card.label} className="stat-card p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <span className="text-xs text-muted-foreground uppercase tracking-widest truncate pr-2">
                 {card.label}
               </span>
-              <div className={cn('w-8 h-8 rounded-sm flex items-center justify-center', card.bg)}>
-                <card.icon className={cn('h-4 w-4', card.color)} />
+              <div className={cn('w-7 h-7 sm:w-8 sm:h-8 rounded-sm flex items-center justify-center flex-shrink-0', card.bg)}>
+                <card.icon className={cn('h-3.5 w-3.5 sm:h-4 sm:w-4', card.color)} />
               </div>
             </div>
-            <div className={cn('font-display text-3xl tracking-wider', card.color)} style={{ fontFamily: 'Bebas Neue, serif' }}>
+            <div className={cn('font-display text-2xl sm:text-3xl tracking-wider break-all', card.color)} style={{ fontFamily: 'Bebas Neue, serif' }}>
               {card.value}
             </div>
-            <p className="text-xs text-muted-foreground mt-2">{card.sub}</p>
+            <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{card.sub}</p>
           </div>
         ))}
       </div>
 
       {/* Recent Orders */}
       <div className="border border-border rounded-sm bg-card">
-        <div className="p-6 border-b border-border">
-          <h3 className="font-medium">Recent Orders</h3>
+        <div className="p-4 sm:p-6 border-b border-border">
+          <h3 className="font-medium text-sm sm:text-base">Recent Orders</h3>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <table className="w-full text-sm min-w-[500px]">
             <thead>
               <tr className="border-b border-border">
                 {['Order ID', 'Customer', 'Amount', 'Payment', 'Status'].map((h) => (
-                  <th key={h} className="text-left text-xs text-muted-foreground uppercase tracking-wider px-6 py-3">
+                  <th key={h} className="text-left text-xs text-muted-foreground uppercase tracking-wider px-4 sm:px-6 py-3">
                     {h}
                   </th>
                 ))}
@@ -171,18 +171,18 @@ export default function DashboardPage() {
             <tbody>
               {recentOrders?.map((order: any) => (
                 <tr key={order.id} className="border-b border-border/50 hover:bg-secondary/50 transition-colors">
-                  <td className="px-6 py-4 font-mono text-xs text-muted-foreground">
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 font-mono text-xs text-muted-foreground">
                     #{order.id.slice(-8).toUpperCase()}
                   </td>
-                  <td className="px-6 py-4">
-                    <div>
-                      <p className="font-medium">{order.user.name}</p>
-                      <p className="text-xs text-muted-foreground">{order.user.email}</p>
+                  <td className="px-4 sm:px-6 py-3 sm:py-4">
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">{order.user.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{order.user.email}</p>
                     </div>
                   </td>
-                  <td className="px-6 py-4 font-medium">৳{order.totalAmount.toLocaleString()}</td>
-                  <td className="px-6 py-4 text-muted-foreground">{order.paymentMethod}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 font-medium whitespace-nowrap">৳{order.totalAmount.toLocaleString()}</td>
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 text-muted-foreground text-xs sm:text-sm">{order.paymentMethod}</td>
+                  <td className="px-4 sm:px-6 py-3 sm:py-4">
                     <span className={cn('px-2 py-1 rounded-sm text-xs font-medium', STATUS_COLORS[order.status] || '')}>
                       {order.status}
                     </span>

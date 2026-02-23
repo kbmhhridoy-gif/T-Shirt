@@ -103,7 +103,7 @@ export async function GET(req: NextRequest) {
         doc.on('error', reject);
         doc.end();
       });
-      return new NextResponse(pdfBuffer, {
+      return new NextResponse(new Uint8Array(pdfBuffer), {
         headers: {
           'Content-Type': 'application/pdf',
           'Content-Disposition': 'attachment; filename="orders-report.pdf"',

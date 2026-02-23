@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { Suspense, useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { ProductCard } from '@/components/product-card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import axios from 'axios';
 
-export default function ProductsPage() {
+function ProductsContent() {
   const searchParams = useSearchParams();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,14 +50,14 @@ export default function ProductsPage() {
   }, [fetchProducts]);
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
       {/* Header */}
-      <div className="mb-10">
+      <div className="mb-6 sm:mb-10">
         <p className="text-xs tracking-[0.4em] uppercase text-primary mb-3">
           {featured ? 'Curated Picks' : isNew ? 'Just Dropped' : 'Full Collection'}
         </p>
         <h1
-          className="font-display text-5xl md:text-6xl tracking-wider mb-2"
+          className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-2"
           style={{ fontFamily: 'Bebas Neue, serif' }}
         >
           {featured ? 'Featured' : isNew ? 'New In' : 'All'} T-Shirts
@@ -68,8 +68,8 @@ export default function ProductsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-8 p-4 bg-card border border-border rounded-sm">
-        <div className="relative flex-1">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8 p-4 sm:p-4 bg-card border border-border rounded-sm">
+        <div className="relative flex-1 min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search products..."
@@ -98,7 +98,7 @@ export default function ProductsPage() {
             setSortOrder(order);
           }}
         >
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px]">
             <SlidersHorizontal className="h-4 w-4 mr-2" />
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
@@ -158,5 +158,13 @@ export default function ProductsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12"><div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">{[...Array(8)].map((_, i) => <div key={i} className="aspect-[4/5] shimmer-bg rounded-sm" />)}</div></div>}>
+      <ProductsContent />
+    </Suspense>
   );
 }

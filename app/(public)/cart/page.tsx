@@ -17,10 +17,10 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-20 text-center">
-        <ShoppingBag className="h-20 w-20 text-muted-foreground mx-auto mb-6 opacity-30" />
+      <div className="container mx-auto px-4 sm:px-6 py-12 sm:py-20 text-center">
+        <ShoppingBag className="h-16 w-16 sm:h-20 sm:w-20 text-muted-foreground mx-auto mb-6 opacity-30" />
         <h2
-          className="font-display text-5xl tracking-wider mb-4"
+          className="font-display text-4xl sm:text-5xl tracking-wider mb-4"
           style={{ fontFamily: 'Bebas Neue, serif' }}
         >
           Your Cart Is Empty
@@ -38,21 +38,21 @@ export default function CartPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
       <h1
-        className="font-display text-5xl tracking-wider mb-10"
+        className="font-display text-4xl sm:text-5xl tracking-wider mb-6 sm:mb-10"
         style={{ fontFamily: 'Bebas Neue, serif' }}
       >
         Your Cart ({itemCount} items)
       </h1>
 
-      <div className="grid lg:grid-cols-3 gap-10">
+      <div className="grid lg:grid-cols-3 gap-6 lg:gap-10">
         {/* Items */}
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => (
-            <div key={item.id} className="flex gap-4 border border-border rounded-sm p-4 bg-card">
-              <div className="relative w-20 h-24 flex-shrink-0 overflow-hidden rounded-sm">
-                <Image src={item.image} alt={item.title} fill className="object-cover" />
+            <div key={item.id} className="flex flex-col sm:flex-row gap-4 border border-border rounded-sm p-4 bg-card">
+              <div className="relative w-full sm:w-20 h-48 sm:h-24 flex-shrink-0 overflow-hidden rounded-sm">
+                <Image src={item.image} alt={item.title} fill className="object-cover" sizes="(max-width: 640px) 100vw, 80px" />
               </div>
 
               <div className="flex-1 min-w-0">
@@ -117,7 +117,7 @@ export default function CartPage() {
 
         {/* Order Summary */}
         <div className="lg:col-span-1">
-          <div className="border border-border rounded-sm p-6 bg-card sticky top-24">
+          <div className="border border-border rounded-sm p-4 sm:p-6 bg-card sticky top-20 sm:top-24">
             <h2 className="text-lg font-semibold mb-6">Order Summary</h2>
 
             <div className="space-y-3 text-sm">

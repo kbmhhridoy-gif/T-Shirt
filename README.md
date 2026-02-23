@@ -222,18 +222,38 @@ Dark industrial aesthetic with:
 
 ## 📦 Deployment
 
-### Vercel (Recommended)
-```bash
-npm i -g vercel
-vercel
-```
+### Vercel (recommended)
 
-Set environment variables in Vercel dashboard.
+1. **Install Vercel CLI** (optional; you can also connect via GitHub in the Vercel dashboard):
+   ```bash
+   npm i -g vercel
+   ```
 
-### Database Options
-- **Neon** (serverless Postgres, free tier)
-- **Supabase** (Postgres with extras)
-- **Railway** (simple deployment)
+2. **Build locally** to confirm the project builds:
+   ```bash
+   npm run build
+   ```
+
+3. **Deploy**:
+   - **From CLI:** Run `vercel` in the project root and follow the prompts. Use `vercel --prod` for production.
+   - **From GitHub:** Push your repo, then at [vercel.com](https://vercel.com) click **Add New Project**, import the repo, and leave **Framework Preset** as Next.js. Vercel will use the existing `vercel.json` and `package.json` build script.
+
+4. **Environment variables** (Vercel project → Settings → Environment Variables). Add the same vars you use in `.env` / `.env.local`:
+   - `DATABASE_URL` — Postgres connection string (required)
+   - `JWT_SECRET` — Secret for JWT signing (required)
+   - `NEXTAUTH_URL` or `NEXT_PUBLIC_APP_URL` — Production URL (e.g. `https://your-app.vercel.app`) if the app uses it
+   - **Payments:** `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `BKASH_*`, `NAGAD_*` (as needed)
+   - **Cloudinary:** `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` (for image uploads)
+   - **Email (optional):** `SMTP_*` or your email provider vars
+
+5. **Database:** Use a hosted Postgres (e.g. **Neon**, **Supabase**, **Railway**) and set `DATABASE_URL` in Vercel. Run migrations (e.g. `npx prisma migrate deploy` or `prisma db push`) against the production DB before or right after first deploy.
+
+6. **Redeploy** after adding or changing environment variables so the new values are applied.
+
+### Database options
+- **Neon** — Serverless Postgres, free tier, works well with Vercel
+- **Supabase** — Postgres with auth/storage extras
+- **Railway** — Simple deployment and Postgres
 
 ---
 

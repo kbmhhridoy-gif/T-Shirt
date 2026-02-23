@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
       _count: true,
     });
 
-    const editorIds = [...new Set(activities.map((a) => a.editorId))];
+    const editorIds = Array.from(new Set(activities.map((a) => a.editorId)));
     const editors = await prisma.user.findMany({
       where: { id: { in: editorIds } },
       select: { id: true, name: true, email: true, role: true },

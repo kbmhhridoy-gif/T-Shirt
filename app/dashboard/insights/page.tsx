@@ -69,27 +69,27 @@ export default function InsightsPage() {
 
   if (loading) {
     return (
-      <div className="p-8">
-        <div className="h-64 shimmer-bg rounded-sm" />
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="h-48 sm:h-64 shimmer-bg rounded-sm" />
       </div>
     );
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       <h1
-        className="font-display text-4xl tracking-wider mb-2"
+        className="font-display text-3xl sm:text-4xl tracking-wider mb-2"
         style={{ fontFamily: 'Bebas Neue, serif' }}
       >
         Insights
       </h1>
-      <p className="text-muted-foreground mb-8">
+      <p className="text-muted-foreground mb-6 sm:mb-8 text-sm sm:text-base">
         Customer and editor contributions. Sort by column to see top contributors.
       </p>
 
       {/* Top customers */}
-      <div className="border border-border rounded-sm bg-card overflow-hidden mb-8">
-        <div className="p-6 border-b border-border flex items-center justify-between flex-wrap gap-4">
+      <div className="border border-border rounded-sm bg-card overflow-hidden mb-6 sm:mb-8">
+        <div className="p-4 sm:p-6 border-b border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <h2 className="font-medium flex items-center gap-2">
             <Users className="h-5 w-5 text-primary" />
             Customer contribution
@@ -111,11 +111,11 @@ export default function InsightsPage() {
             ))}
           </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <table className="w-full text-sm min-w-[400px]">
             <thead>
               <tr className="border-b border-border bg-secondary/30">
-                <th className="text-left text-xs text-muted-foreground uppercase tracking-wider px-6 py-4">Customer</th>
+                <th className="text-left text-xs text-muted-foreground uppercase tracking-wider px-4 sm:px-6 py-3 sm:py-4">Customer</th>
                 <th className="text-left text-xs text-muted-foreground uppercase tracking-wider px-6 py-4">Phone</th>
                 <th className="text-left text-xs text-muted-foreground uppercase tracking-wider px-6 py-4">Orders</th>
                 <th className="text-left text-xs text-muted-foreground uppercase tracking-wider px-6 py-4">Total spent</th>
@@ -142,7 +142,7 @@ export default function InsightsPage() {
 
       {/* Editor contribution */}
       <div className="border border-border rounded-sm bg-card overflow-hidden">
-        <div className="p-6 border-b border-border flex items-center justify-between flex-wrap gap-4">
+        <div className="p-4 sm:p-6 border-b border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <h2 className="font-medium flex items-center gap-2">
             <Edit3 className="h-5 w-5 text-primary" />
             Editor contribution

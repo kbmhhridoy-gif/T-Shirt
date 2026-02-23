@@ -43,6 +43,7 @@
     "clsx": "^2.1.0",
     "exceljs": "^4.4.0",
     "framer-motion": "^11.0.14",
+    "iconv-lite": "^0.7.2",
     "jose": "^5.2.3",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.341.0",

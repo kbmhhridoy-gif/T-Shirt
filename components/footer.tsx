@@ -5,9 +5,9 @@ import { Instagram, Twitter, Facebook, Mail, Phone, MapPin } from 'lucide-react'
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-card mt-20">
-      <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+    <footer className="border-t border-border bg-card mt-12 sm:mt-20">
+      <div className="container mx-auto px-4 sm:px-6 py-10 sm:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10">
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
             <h2
@@ -106,7 +106,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-border mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="border-t border-border mt-8 sm:mt-12 pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} Thread Haus. All rights reserved.
           </p>

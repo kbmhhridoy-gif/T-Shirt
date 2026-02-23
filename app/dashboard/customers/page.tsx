@@ -83,20 +83,20 @@ export default function CustomersPage() {
   };
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className="mb-6 sm:mb-8">
         <h1
-          className="font-display text-4xl tracking-wider"
+          className="font-display text-3xl sm:text-4xl tracking-wider"
           style={{ fontFamily: 'Bebas Neue, serif' }}
         >
           Customers
         </h1>
-        <p className="text-muted-foreground mt-1">{users.length} users found</p>
+        <p className="text-muted-foreground mt-1 text-sm sm:text-base">{users.length} users found</p>
       </div>
 
       {/* Filters */}
-      <div className="flex gap-4 mb-6">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <div className="relative flex-1 min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search users..."
@@ -105,7 +105,7 @@ export default function CustomersPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {['', 'CUSTOMER', 'EDITOR', 'ADMIN'].map((role) => (
             <Button
               key={role}
@@ -130,11 +130,12 @@ export default function CustomersPage() {
 
       {/* Table */}
       <div className="border border-border rounded-sm bg-card overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <table className="w-full text-sm min-w-[800px]">
           <thead>
             <tr className="border-b border-border bg-secondary/30">
               {['User', 'Phone', 'Role', 'Orders', 'Total spent', 'Products', 'Status', 'Joined', 'Actions'].map((h) => (
-                <th key={h} className="text-left text-xs text-muted-foreground uppercase tracking-wider px-6 py-4">
+                <th key={h} className="text-left text-xs text-muted-foreground uppercase tracking-wider px-4 sm:px-6 py-3 sm:py-4">
                   {h}
                 </th>
               ))}
@@ -149,7 +150,7 @@ export default function CustomersPage() {
                   user.isBlocked && 'opacity-60'
                 )}
               >
-                <td className="px-6 py-4">
+                <td className="px-4 sm:px-6 py-3 sm:py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-xs font-medium text-primary flex-shrink-0">
                       {user.name.charAt(0).toUpperCase()}
@@ -259,12 +260,13 @@ export default function CustomersPage() {
             ))}
           </tbody>
         </table>
+        </div>
 
         {loading && (
-          <div className="p-8 text-center text-muted-foreground">Loading...</div>
+          <div className="p-6 sm:p-8 text-center text-muted-foreground">Loading...</div>
         )}
         {!loading && users.length === 0 && (
-          <div className="p-8 text-center text-muted-foreground">No users found</div>
+          <div className="p-6 sm:p-8 text-center text-muted-foreground">No users found</div>
         )}
       </div>
     </div>

@@ -51,12 +51,12 @@ export default function EditorOrdersPage() {
   };
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="font-display text-4xl tracking-wider" style={{ fontFamily: 'Bebas Neue, serif' }}>
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="font-display text-3xl sm:text-4xl tracking-wider" style={{ fontFamily: 'Bebas Neue, serif' }}>
           My Assigned Orders
         </h1>
-        <p className="text-muted-foreground mt-1">{orders.length} orders assigned to you</p>
+        <p className="text-muted-foreground mt-1 text-sm sm:text-base">{orders.length} orders assigned to you</p>
       </div>
 
       <div className="space-y-4">
@@ -65,7 +65,7 @@ export default function EditorOrdersPage() {
           const StatusIcon = config.icon;
           return (
             <div key={order.id} className="border border-border rounded-sm bg-card">
-              <div className="flex flex-wrap items-center justify-between gap-4 p-5 border-b border-border">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-3 sm:gap-4 p-4 sm:p-5 border-b border-border">
                 <div>
                   <p className="font-mono text-xs text-muted-foreground">#{order.id.slice(-8).toUpperCase()}</p>
                   <p className="font-medium mt-0.5">{order.user?.name}</p>

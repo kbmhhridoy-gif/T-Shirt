@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Providers } from '@/components/providers';
 import { Toaster } from '@/components/ui/toaster';
@@ -10,6 +10,12 @@ export const metadata: Metadata = {
   },
   description: 'Premium quality T-shirts crafted for the bold. Custom cuts, curated colors.',
   keywords: ['t-shirts', 'premium', 'custom', 'Bangladesh', 'fashion'],
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({

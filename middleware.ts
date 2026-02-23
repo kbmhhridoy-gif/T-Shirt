@@ -6,6 +6,9 @@ import { prisma } from '@/lib/prisma';
 const publicPaths = [
   '/',
   '/products',
+  '/cart',
+  '/checkout',
+  '/order-confirmation',
   '/login',
   '/register',
   '/api/auth/login',
@@ -21,8 +24,18 @@ const authRequiredPaths = ['/cart', '/checkout', '/orders', '/profile'];
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Allow public paths
+  // Allow public paths (including guest checkout/cart/order-confirmation)
   if (publicPaths.some((p) => pathname.startsWith(p))) {
+    return NextResponse.next();
+  }
+
+  // Allow specific guest-facing APIs without authentication
+  if (
+    (pathname === '/api/orders' && req.method === 'POST') ||
+    (pathname === '/api/payments/otp/send' && req.method === 'POST') ||
+    (pathname === '/api/payments/otp/verify' && req.method === 'POST') ||
+    (pathname === '/api/payments/stripe' && req.method === 'POST')
+  ) {
     return NextResponse.next();
   }
 

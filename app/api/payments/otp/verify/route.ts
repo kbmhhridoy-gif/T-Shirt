@@ -2,14 +2,12 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromRequest } from '@/lib/auth';
-import { successResponse, errorResponse, unauthorizedResponse } from '@/lib/api';
+import { successResponse, errorResponse } from '@/lib/api';
 import { onPaymentSuccess } from '@/lib/order-complete';
 
 export async function POST(req: NextRequest) {
   try {
     const user = await getUserFromRequest(req);
-    if (!user) return unauthorizedResponse();
-
     const { phone, otp, orderId } = await req.json();
     const normalizedPhone = String(phone || '').replace(/\D/g, '').slice(-11);
     const otpStr = String(otp || '').trim();
@@ -20,8 +18,13 @@ export async function POST(req: NextRequest) {
     if (!orderId) return errorResponse('Order ID is required', 400);
 
     const order = await prisma.order.findFirst({
-      where: { id: orderId, userId: user.userId },
-      include: { orderItems: { include: { product: true } }, user: true },
+      where: user
+        ? { id: orderId, userId: user.userId }
+        : { id: orderId, userId: null, guestPhone: normalizedPhone },
+      include: {
+        orderItems: { include: { product: true } },
+        user: true,
+      },
     });
     if (!order) return errorResponse('Order not found', 404);
     if (order.paymentStatus === 'PAID') {

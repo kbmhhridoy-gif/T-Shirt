@@ -44,16 +44,47 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const user = await getUserFromRequest(req);
-    if (!user) return unauthorizedResponse();
-    if (user.role === 'EDITOR') {
+    const authUser = await getUserFromRequest(req);
+    const isGuest = !authUser;
+
+    if (authUser && authUser.role === 'EDITOR') {
       return forbiddenResponse('Editors cannot place orders. Checkout is only available for customers and admins.');
     }
 
-    const { items, paymentMethod, shippingAddr, notes } = await req.json();
+    const {
+      items,
+      paymentMethod,
+      shippingAddr,
+      notes,
+      guestName,
+      guestPhone,
+      guestAddress,
+      guestEmail,
+    } = await req.json();
 
     if (!items?.length || !paymentMethod) {
       return errorResponse('Missing required fields');
+    }
+
+    // Guest validation: require basic identity + reachable phone/address
+    if (isGuest) {
+      const nameStr = String(guestName || '').trim();
+      const phoneStr = String(guestPhone || '').replace(/\D/g, '').slice(-11);
+      const addrStr = String(guestAddress || '').trim();
+      const emailStr = String(guestEmail || '').trim();
+
+      if (nameStr.length < 2) {
+        return errorResponse('Name is required for guest checkout', 400);
+      }
+      if (phoneStr.length !== 11) {
+        return errorResponse('Valid 11-digit phone number is required for guest checkout', 400);
+      }
+      if (addrStr.length < 10) {
+        return errorResponse('Delivery address is too short', 400);
+      }
+      if (emailStr && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailStr)) {
+        return errorResponse('Invalid email address', 400);
+      }
     }
 
     // Calculate total from DB prices (prevents price manipulation)
@@ -99,19 +130,34 @@ export async function POST(req: NextRequest) {
       editorId = withCounts[0].id;
     }
 
+    const baseData: any = {
+      editorId,
+      totalAmount,
+      subtotal,
+      shippingCost,
+      paymentMethod,
+      shippingAddr,
+      notes,
+      orderItems: { create: orderItems },
+    };
+
+    if (authUser) {
+      baseData.userId = authUser.userId;
+    } else {
+      baseData.userId = null;
+      baseData.guestName = String(guestName || '').trim();
+      baseData.guestPhone = String(guestPhone || '').replace(/\D/g, '').slice(-11);
+      baseData.guestAddress = String(guestAddress || '').trim();
+      baseData.guestEmail = String(guestEmail || '').trim() || null;
+    }
+
     const order = await prisma.order.create({
-      data: {
-        userId: user.userId,
-        editorId,
-        totalAmount,
-        subtotal,
-        shippingCost,
-        paymentMethod,
-        shippingAddr,
-        notes,
-        orderItems: { create: orderItems },
+      data: baseData,
+      include: {
+        orderItems: true,
+        editor: { select: { id: true, name: true, email: true } },
+        user: { select: { id: true, name: true, email: true, phone: true } },
       },
-      include: { orderItems: true, editor: { select: { id: true, name: true, email: true } } },
     });
 
     return successResponse({ order }, 201);

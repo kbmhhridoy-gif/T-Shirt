@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ShoppingCart, Menu, X, User, LogOut, LayoutDashboard, Package } from 'lucide-react';
+import axios from 'axios';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { logout } from '@/store/slices/authSlice';
@@ -19,7 +20,7 @@ import {
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { user, isAuthenticated } = useAppSelector((s) => s.auth);
+  const { user, isAuthenticated, token } = useAppSelector((s) => s.auth);
   const { itemCount } = useAppSelector((s) => s.cart);
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -30,9 +31,21 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    router.push('/');
+  const handleLogout = async () => {
+    try {
+      if (token) {
+        await axios.post(
+          '/api/auth/logout',
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      }
+    } catch {
+      // ignore logout API errors
+    } finally {
+      dispatch(logout());
+      router.push('/');
+    }
   };
 
   const getDashboardLink = () => {
@@ -91,10 +104,25 @@ export function Navbar() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="gap-2">
-                    <div className="w-7 h-7 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center">
-                      <span className="text-xs font-medium text-primary">
-                        {user.name.charAt(0).toUpperCase()}
-                      </span>
+                    <div className="relative w-7 h-7">
+                      {user.avatar || user.image ? (
+                        <img
+                          src={(user.avatar as string) || (user.image as string)}
+                          alt={user.name}
+                          className="w-7 h-7 rounded-full object-cover border border-primary/40 bg-background"
+                        />
+                      ) : (
+                        <div className="w-7 h-7 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center">
+                          <span className="text-xs font-medium text-primary">
+                            {user.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                      <span
+                        className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border border-background ${
+                          user.isOnline ? 'bg-green-500' : 'bg-gray-500'
+                        }`}
+                      />
                     </div>
                     <span className="hidden sm:block text-sm">{user.name.split(' ')[0]}</span>
                   </Button>

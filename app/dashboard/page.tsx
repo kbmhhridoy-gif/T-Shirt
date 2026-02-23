@@ -21,7 +21,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function DashboardPage() {
-  const { token } = useAppSelector((s) => s.auth);
+  const { token, user: authUser } = useAppSelector((s) => s.auth);
   const { toast } = useToast();
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -122,13 +122,41 @@ export default function DashboardPage() {
           </h1>
           <p className="text-muted-foreground mt-1 text-sm sm:text-base">Welcome back, Admin</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" className="gap-2 text-xs sm:text-sm" onClick={() => downloadReport('pdf')}>
-            <FileDown className="h-4 w-4" /> Download PDF
-          </Button>
-          <Button variant="outline" size="sm" className="gap-2 text-xs sm:text-sm" onClick={() => downloadReport('xlsx')}>
-            <FileSpreadsheet className="h-4 w-4" /> Download Excel
-          </Button>
+        <div className="flex items-center gap-3 sm:gap-4 flex-wrap justify-end">
+          {authUser && (
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground pr-1">
+              <div className="relative w-8 h-8 flex-shrink-0">
+                {authUser.avatar || authUser.image ? (
+                  <img
+                    src={(authUser.avatar as string) || (authUser.image as string)}
+                    alt={authUser.name}
+                    className="w-8 h-8 rounded-full object-cover border border-primary/40 bg-background"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center text-xs font-medium text-primary">
+                    {authUser.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <span
+                  className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border border-card ${
+                    authUser.isOnline ? 'bg-green-500' : 'bg-gray-500'
+                  }`}
+                />
+              </div>
+              <div className="flex flex-col leading-tight">
+                <span className="font-medium text-foreground">{authUser.name}</span>
+                <span className="text-[11px] uppercase tracking-wide">{authUser.role}</span>
+              </div>
+            </div>
+          )}
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" className="gap-2 text-xs sm:text-sm" onClick={() => downloadReport('pdf')}>
+              <FileDown className="h-4 w-4" /> Download PDF
+            </Button>
+            <Button variant="outline" size="sm" className="gap-2 text-xs sm:text-sm" onClick={() => downloadReport('xlsx')}>
+              <FileSpreadsheet className="h-4 w-4" /> Download Excel
+            </Button>
+          </div>
         </div>
       </div>
 

@@ -11,6 +11,9 @@ export interface User {
   isMuted?: boolean;
   isActive?: boolean;
   avatar?: string;
+   image?: string;
+   isOnline?: boolean;
+   lastSeen?: string;
 }
 
 interface AuthState {

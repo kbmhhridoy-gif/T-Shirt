@@ -1,4 +1,4 @@
-﻿-- AlterTable
+-- AlterTable
 ALTER TABLE "users" ADD COLUMN "isMuted" BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE "users" ADD COLUMN "isActive" BOOLEAN NOT NULL DEFAULT true;
 

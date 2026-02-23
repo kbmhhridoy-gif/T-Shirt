@@ -38,6 +38,17 @@ export async function POST(req: NextRequest) {
         role: true,
         isBlocked: true,
         avatar: true,
+        image: true,
+        isOnline: true,
+        lastSeen: true,
+      },
+    });
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isOnline: true,
+        lastSeen: new Date(),
       },
     });
 

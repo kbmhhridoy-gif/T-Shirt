@@ -131,10 +131,10 @@ export default function CustomersPage() {
       {/* Table */}
       <div className="border border-border rounded-sm bg-card overflow-hidden">
         <div className="overflow-x-auto -mx-4 sm:mx-0">
-        <table className="w-full text-sm min-w-[800px]">
+        <table className="w-full text-sm min-w-[880px]">
           <thead>
             <tr className="border-b border-border bg-secondary/30">
-              {['User', 'Phone', 'Role', 'Orders', 'Total spent', 'Products', 'Status', 'Joined', 'Actions'].map((h) => (
+              {['User', 'Phone', 'Role', 'Orders', 'Total spent', 'Products', 'Status', 'Last seen', 'Joined', 'Actions'].map((h) => (
                 <th key={h} className="text-left text-xs text-muted-foreground uppercase tracking-wider px-4 sm:px-6 py-3 sm:py-4">
                   {h}
                 </th>
@@ -152,8 +152,23 @@ export default function CustomersPage() {
               >
                 <td className="px-4 sm:px-6 py-3 sm:py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-xs font-medium text-primary flex-shrink-0">
-                      {user.name.charAt(0).toUpperCase()}
+                    <div className="relative w-8 h-8 flex-shrink-0">
+                      {user.avatar || user.image ? (
+                        <img
+                          src={(user.avatar as string) || (user.image as string)}
+                          alt={user.name}
+                          className="w-8 h-8 rounded-full object-cover border border-primary/30 bg-background"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-xs font-medium text-primary">
+                          {user.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <span
+                        className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border border-card ${
+                          user.isOnline ? 'bg-green-500' : 'bg-gray-500'
+                        }`}
+                      />
                     </div>
                     <div>
                       <p className="font-medium">{user.name}</p>
@@ -204,6 +219,21 @@ export default function CustomersPage() {
                   ) : (
                     <span className="text-green-400"><CheckCircle className="h-3 w-3" /> Active</span>
                   )}
+                </td>
+                <td className="px-6 py-4 text-xs text-muted-foreground">
+                  {(() => {
+                    const d = user.lastSeen ? new Date(user.lastSeen) : null;
+                    if (user.isOnline) return 'Online now';
+                    if (!d) return '—';
+                    const diffMs = Date.now() - d.getTime();
+                    const mins = Math.round(diffMs / 60000);
+                    if (mins < 1) return 'just now';
+                    if (mins < 60) return `${mins} min${mins === 1 ? '' : 's'} ago`;
+                    const hours = Math.round(mins / 60);
+                    if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+                    const days = Math.round(hours / 24);
+                    return `${days} day${days === 1 ? '' : 's'} ago`;
+                  })()}
                 </td>
                 <td className="px-6 py-4 text-muted-foreground text-xs">
                   {new Date(user.createdAt).toLocaleDateString()}

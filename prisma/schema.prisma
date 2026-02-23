@@ -45,16 +45,19 @@ model User {
   isMuted   Boolean  @default(false)  // Editor: can login but cannot modify orders
   isActive  Boolean  @default(true)  // Editor: false = cannot login
   avatar    String?
+  image     String?  // profile photo URL
+  isOnline  Boolean  @default(false)
+  lastSeen  DateTime?
   phone     String?
   address   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  orders            Order[]          // Customer orders (userId)
-  assignedOrders    Order[]         @relation("AssignedOrders")  // Orders assigned to editor
-  reviews           Review[]
-  products          Product[]        @relation("CreatedBy")
-  editorActivities  EditorActivity[]
+  orders           Order[]         // Customer orders (userId)
+  assignedOrders   Order[]        @relation("AssignedOrders")  // Orders assigned to editor
+  reviews          Review[]
+  products         Product[]       @relation("CreatedBy")
+  editorActivities EditorActivity[]
 
   @@map("users")
 }

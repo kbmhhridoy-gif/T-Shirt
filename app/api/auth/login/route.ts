@@ -17,7 +17,20 @@ export async function POST(req: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
-      select: { id: true, name: true, email: true, password: true, role: true, isBlocked: true, isActive: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        password: true,
+        role: true,
+        isBlocked: true,
+        isActive: true,
+        isMuted: true,
+        avatar: true,
+        image: true,
+        isOnline: true,
+        lastSeen: true,
+      },
     });
 
     if (!user) {
@@ -35,6 +48,14 @@ export async function POST(req: NextRequest) {
     if (user.role === 'EDITOR' && user.isActive === false) {
       return forbiddenResponse('Your account has been disabled by admin.');
     }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isOnline: true,
+        lastSeen: new Date(),
+      },
+    });
 
     const token = await signToken({
       userId: user.id,
